@@ -1,0 +1,35 @@
+# Ignore IDE state files
+*.cbp
+*.sln
+*.vcx*
+*.workspace*
+*.xcodeproj
+*.plist
+*.xcconfig
+*.suo
+*.depend
+*.layout
+*.mode*v3
+*.pbxuser
+*.app*
+*.xcworkspacedata
+xcuserdata/
+project.xcworkspace
+*.sublime-workspace
+*.qbs.user
+
+# Ignore the standard QT Creator build paths
+build-*
+*/build/*
+
+# Ignore build artifacts for custom addons
+addons/*/example*/obj/
+addons/*/example*/bin/
+addons/*/example*/bin/build/**
+!addons/*/example*/bin/data
+
+# Ignore build artifacts for custom apps
+apps/*/obj/
+apps/*/bin/
+apps/*/build/
+!apps/*/bin/data

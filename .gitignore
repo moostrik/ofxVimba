@@ -23,13 +23,7 @@ build-*
 */build/*
 
 # Ignore build artifacts for custom addons
-addons/*/example*/obj/
-addons/*/example*/bin/
-addons/*/example*/bin/build/**
-!addons/*/example*/bin/data
-
-# Ignore build artifacts for custom apps
-apps/*/obj/
-apps/*/bin/
-apps/*/build/
-!apps/*/bin/data
+example*/obj/
+example*/bin/
+example*/bin/build/**
+!example*/bin/data

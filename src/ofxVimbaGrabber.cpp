@@ -528,6 +528,9 @@ string ofxVimbaGrabber::intIdToHexId(int _intId) const {
   std::stringstream ss;
   ss << std::uppercase << std::hex << _intId;
   std::string stringId(ss.str());
+  while (stringId.length() < 6) {
+    stringId = "0" + stringId;
+  }
   stringId = "DEV_000F31" + stringId;
   return stringId;
 }

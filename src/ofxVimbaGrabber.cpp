@@ -209,11 +209,11 @@ void ofxVimbaGrabber::openDevice(std::shared_ptr<Device> &next) {
   logger.notice("Opened camera connection");
   if (bReadOnly) {
     logger.notice("running in read only mode");
-  } else {
-    features->bind(device);
-    pixelFormat = toOfPixelFormat(features->getString("PixelFormat"));
-    framerate = features->getFloat("AcquisitionFrameRateAbs");
   }
+
+  features->bind(device);
+  pixelFormat = toOfPixelFormat(features->getString("PixelFormat"));
+  framerate = features->getFloat("AcquisitionFrameRateAbs");
 
   parameters->bind(device);
   startStream();

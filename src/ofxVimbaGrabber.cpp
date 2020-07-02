@@ -33,8 +33,6 @@ bool ofxVimbaGrabber::setup(int _w, int _h) {
   setWidth(width);
   setHeight(height);
 
-  texture.allocate(_w, _h, ofGetGLInternalFormatFromPixelFormat(pixelFormat));
-
   bInited = true;
   if (!bReadOnly) {
     features->setOffline("TriggerSource", "FixedRate");
@@ -71,14 +69,6 @@ void ofxVimbaGrabber::update() {
     height = pixels.getHeight();
     xOffset = features->getInt("OffsetX");
     yOffset = features->getInt("OffsetY");
-
-    if (texture.getWidth() != width || texture.getHeight() != height ||
-        texture.getTextureData().glInternalFormat !=
-            ofGetGLInternalFormatFromPixelFormat(pixelFormat)) {
-      texture.allocate(pixels.getWidth(), pixels.getHeight(),
-                       ofGetGLInternalFormatFromPixelFormat(pixelFormat));
-    }
-    texture.loadData(pixels);
 
     frameReceived = false;
     bNewFrame = true;

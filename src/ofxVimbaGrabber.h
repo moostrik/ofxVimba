@@ -77,8 +77,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   ofPixelFormat getPixelFormat() const override { return pixelFormat; }
   ofPixels &getPixels() override { return pixels; }
   const ofPixels &getPixels() const override { return pixels; }
-  ofTexture *getTexturePtr() override { return &texture; }
-  ofTexture &getTexture() { return texture; }
 
   // -- LIST -------------------------------------------------------------------
  public:
@@ -137,8 +135,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   std::vector<ofPixels> pixelsVector;
   std::atomic<int> frameCount;
   std::atomic<bool> frameReceived;
-
-  ofTexture texture;
 
   string deviceID;
   int width;

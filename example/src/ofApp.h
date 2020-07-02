@@ -11,7 +11,6 @@ class ofApp : public ofBaseApp {
   void draw();
 
   void keyPressed(int key);
-  void minimizeNested(ofxGuiGroup &group, ofxGuiGroup *root = nullptr);
 
  private:
   // The camera instance
@@ -22,4 +21,5 @@ class ofApp : public ofBaseApp {
   ofParameter<bool> pAllParameters;
   void pAllParametersListener(bool &_value) { updateParameters(); }
   void updateParameters();
+  void minimizeNested(ofxGuiGroup &group, ofxGuiGroup *root = nullptr);
 };

@@ -31,6 +31,7 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
   grabber.update();
+
   if (vimbaGrabber->isConnectionChanged()) {
     updateParameters();
     if (vimbaGrabber->isConnected()) {

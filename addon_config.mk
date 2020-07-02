@@ -6,14 +6,12 @@ meta:
     ADDON_URL = http://github.com/moostrik/ofxVimba
 
 common:
-    ADDON_INCLUDES =
+    ADDON_INCLUDES = libs/Vimba/include
     ADDON_INCLUDES += src
-    ADDON_INCLUDES += libs/Vimba/include
     ADDON_DEPENDENCIES = ofxXmlSettings
     ADDON_CPPFLAGS = -D_x64
 
 linux64:
-    ADDON_LIBS =
-    ADDON_LIBS += libs/Vimba/lib/linux64/libVimbaC.so
+    ADDON_LIBS = ibs/Vimba/lib/linux64/libVimbaC.so
     ADDON_LIBS += libs/Vimba/lib/linux64/libVimbaCPP.so
     ADDON_CPPFLAGS += -D_LINUX

@@ -23,9 +23,7 @@ void ofApp::setup() {
 
   panel.setDefaultWidth(300);
   panel.setup("settings");
-  panel.add(pAllParameters.set("all parameters", false));
-  pAllParameters.addListener(this, &ofApp::pAllParametersListener);
-  panel.add(vimbaGrabber->getParameters());
+  updateParameters();
 }
 
 //--------------------------------------------------------------
@@ -75,8 +73,7 @@ void ofApp::minimizeNested(ofxGuiGroup &group, ofxGuiGroup *root) {
 
 void ofApp::updateParameters() {
   panel.clear();
-  panel.add(pAllParameters);
-  if (pAllParameters.get()) {
+  if (SHOW_ALL_PARAMETERS) {
     panel.add(vimbaGrabber->getParameters());
   } else {
     panel.add(vimbaGrabber->getParameters(ofxVimba::PARAMETERS_AUTOEXPOSURE));

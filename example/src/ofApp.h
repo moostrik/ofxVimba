@@ -4,6 +4,8 @@
 #include "ofxGui.h"
 #include "ofxVimbaGrabber.h"
 
+#define SHOW_ALL_PARAMETERS TRUE
+
 class ofApp : public ofBaseApp {
  public:
   void setup();
@@ -18,8 +20,6 @@ class ofApp : public ofBaseApp {
   ofVideoGrabber grabber;
 
   ofxPanel panel;
-  ofParameter<bool> pAllParameters;
-  void pAllParametersListener(bool &_value) { updateParameters(); }
   void updateParameters();
   void minimizeNested(ofxGuiGroup &group, ofxGuiGroup *root = nullptr);
 };

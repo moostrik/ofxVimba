@@ -37,17 +37,8 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   void setFrameRate(int _value);
   void setWidth(int _value);
   void setHeight(int _value);
-  void setFloatFeature(string _n, float _v) {
-    features->setOffline(_n, ofToString(_v));
-  }
-  void setIntFeature(string _n, int _v) {
-    features->setOffline(_n, ofToString(_v));
-  }
-  void setBoolFeature(string _n, bool _v) {
-    features->setOffline(_n, ofToString(_v));
-  }
-  void setStringFeature(string _n, string _v) {
-    features->setOffline(_n, ofToString(_v));
+  void setFeature(string _n, string _v) {
+    features->setOffline(_n, _v);
   }
 
   // -- GET --------------------------------------------------------------------

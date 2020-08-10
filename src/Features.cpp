@@ -116,6 +116,25 @@ bool GenericFeature<VmbInt64_t>::push() {
   }
 }
 
+template <>
+bool GenericFeature<bool>::push() {
+  auto error = VmbFeature->SetValue(value);
+  if (error == VmbErrorSuccess) {
+    logger.verbose("set to " + ofToString(value));
+    return true;
+  } else {
+    auto error = VmbFeature->RunCommand();
+    if (error == VmbErrorSuccess) {
+       logger.verbose("run");
+       return true;
+    }
+    else {
+      logger.warning("failed to set to " + ofToString(value), error);
+      return false;
+    }
+  }
+}
+
 template <typename T>
 void GenericFeature<T>::setValue(const T _value) {
   value = _value;

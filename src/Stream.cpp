@@ -78,7 +78,9 @@ void Stream::run() {
 
         close();
       } else if (isStalled()) {
-        logger.warning("Detected stalled stream, restarting stream");
+        if (device->getCurrentAccessMode() == AccessModeMaster) {
+          logger.warning("Detected stalled stream, restarting stream");
+        }
         timeout = std::chrono::milliseconds(0);
 
         close();

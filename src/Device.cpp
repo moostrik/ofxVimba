@@ -28,10 +28,12 @@ bool Device::open(AccessMode mode) {
   }
 
   currentMode = mode;
-  if (run("GVSPAdjustPacketSize")) {
-    logger.notice("Adjusted packet size");
-  } else {
-    logger.notice("Packet size not Adjusted");
+  if (mode == AccessModeMaster) {
+    if (run("GVSPAdjustPacketSize")) {
+      logger.notice("Adjusted packet size");
+    } else {
+      logger.notice("Packet size not Adjusted");
+    }
   }
 
   return true;

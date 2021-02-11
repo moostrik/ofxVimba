@@ -8,8 +8,8 @@ void ofApp::setup() {
   vimbaGrabber = std::make_shared<ofxVimbaGrabber>();
   vimbaGrabber->enableMulticast();
 
-  vimbaGrabber->setIntFeature("DecimationHorizontal", 2);
-  vimbaGrabber->setIntFeature("DecimationVertical", 2);
+  // vimbaGrabber->setIntFeature("DecimationHorizontal", 2);
+  // vimbaGrabber->setIntFeature("DecimationVertical", 2);
   // vimbaGrabber->enableReadOnly();
 
   grabber.setGrabber(vimbaGrabber);

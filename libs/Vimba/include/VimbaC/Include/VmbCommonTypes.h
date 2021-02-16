@@ -124,8 +124,8 @@ extern "C" {
         VmbErrorNoTL            = -16,          // No transport layers are found 
         VmbErrorNotImplemented  = -17,          // API feature is not implemented
         VmbErrorNotSupported    = -18,          // API feature is not supported
-        VmbErrorIncomplete      = -19,          // A multiple registers read or write is partially completed
-        VmbErrorIO              = -20,          // low level IO error in transport layer
+        VmbErrorIncomplete      = -19,          // The current operation was not completed (e.g. a multiple registers read or write)
+        VmbErrorIO              = -20,          // Low level IO error in transport layer
     } VmbErrorType;
     typedef VmbInt32_t VmbError_t;              // Type for an error returned by API methods; for values see VmbErrorType
 

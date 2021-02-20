@@ -12,7 +12,7 @@
 #include "Logger.h"
 
 namespace ofxVimba {
-static const uint64_t CAMERA_STALLED_TIMEOUT = 1000;
+static const uint64_t CAMERA_STALLED_TIMEOUT = 1500;
 static const uint64_t CAMERA_INITIALIZE_TIMEOUT = 1000;
 
 class StreamObserver;

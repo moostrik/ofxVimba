@@ -137,16 +137,14 @@ bool Stream::close() {
 }
 
 bool Stream::receive(AVT::VmbAPI::FramePtr framePtr) {
+  if (!device) {
+    return false;
+  }
   auto frame = std::make_shared<Frame>(device);
 
   if (frame->load(framePtr)) {
     // Keep track of our frame rate
     frameAt = ofGetElapsedTimeMillis();
-
-    //    if (frame->getId() % 100 == 0) {
-    //      logger.verbose("Received frame with id: " +
-    //      ofToString(frame->getId()));
-    //    }
 
     // Notify of new frame
     ofNotifyEvent(onFrame, frame, this);

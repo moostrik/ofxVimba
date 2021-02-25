@@ -4,7 +4,7 @@
 using namespace ofxVimba;
 
 Device::Device(AVT::VmbAPI::CameraPtr handle)
-    : logger("Device"), system(System::getInstance()), handle(handle) {
+    : logger("Device "), system(System::getInstance()), handle(handle) {
   logger.setScope("Unknown");
   inspect();
 }
@@ -30,12 +30,13 @@ bool Device::open(AccessMode mode) {
   currentMode = mode;
   if (mode == AccessModeMaster) {
     if (run("GVSPAdjustPacketSize")) {
-      logger.notice("Adjusted packet size");
+      logger.verbose("Adjusted packet size");
     } else {
-      logger.notice("Packet size not Adjusted");
+      logger.verbose("Packet size not Adjusted");
     }
   }
 
+  logger.notice("Open");
   return true;
 }
 
@@ -51,9 +52,12 @@ bool Device::close() {
     return false;
   } else if (error != VmbErrorSuccess) {
     logger.warning("Failed to close camera", error);
+    return false;
   }
 
   currentMode = AccessModeNone;
+
+  logger.notice("Closed");
   return true;
 }
 

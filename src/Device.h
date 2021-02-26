@@ -20,12 +20,12 @@ class Device {
   const std::string& getName() const { return name; }
   const std::string& getModel() const { return model; }
   const std::string& getSerial() const { return serial; }
-  const AccessMode& getAvailableAccessMode() const { return availableMode; }
+  AccessMode getAvailableAccessMode() const;
   const AccessMode& getCurrentAccessMode() const { return currentMode; }
   const AVT::VmbAPI::CameraPtr& getHandle() const { return handle; }
 
   // Flags
-  bool isAvailable() const { return availableMode >= AccessModeRead; }
+  bool isAvailable() const { return getAvailableAccessMode() >= AccessModeRead; }
   bool isOpen() const { return currentMode >= AccessModeRead; }
   bool isMaster() const { return currentMode >= AccessModeMaster; }
 
@@ -134,7 +134,6 @@ class Device {
   std::string name = "";
   std::string model = "";
   std::string serial = "";
-  AccessMode availableMode = AccessModeNone;
   AccessMode currentMode = AccessModeNone;
   AVT::VmbAPI::CameraPtr handle;
 

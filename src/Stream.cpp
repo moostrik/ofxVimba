@@ -195,7 +195,7 @@ bool Stream::teardown() {
   if (error == VmbErrorSuccess) {
     if (flush()) {
       if (deallocate()) {
-        logger.verbose("Stopped capturing");
+        logger.notice("Stopped capturing");
       } else {
         logger.warning("Failed to deallocate frames");
       }

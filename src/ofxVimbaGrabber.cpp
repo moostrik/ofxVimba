@@ -217,6 +217,13 @@ void ofxVimbaGrabber::openDevice(std::shared_ptr<Device> &next) {
 
   parameters->bind(device);
   startStream();
+
+  if (!bReadOnly) {
+    device->run("GVSPAdjustPacketSize");
+    VmbInt64_t GVSPPacketSize;
+    device->get("GVSPPacketSize", GVSPPacketSize);
+    ofLogVerbose("ofxVimbaGrabber::openDevice") << "Packet size set to " << GVSPPacketSize;
+  }
 }
 
 void ofxVimbaGrabber::closeDevice() {

@@ -27,20 +27,6 @@ bool Device::open(AccessMode mode) {
     return false;
   }
 
-  if (mode <= AccessModeAuto) {
-    logger.warning("Failed to open camera: no available acces mode");
-    return false;
-  }
-
-  if (mode == AccessModeMaster) {
-    if (run("GVSPAdjustPacketSize")) {
-      logger.verbose("Adjusted packet size");
-    } else {
-      logger.verbose("Packet size not Adjusted");
-      //return false; // ????
-    }
-  }
-
   currentMode = mode;
   logger.notice("Open");
   return true;

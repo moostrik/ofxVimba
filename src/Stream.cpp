@@ -77,14 +77,15 @@ void Stream::run() {
         timeout = std::chrono::milliseconds(0);
 
         close();
-      } else if (isStalled()) {
-        if (device->getCurrentAccessMode() == AccessModeMaster) {
-          logger.warning("Detected stalled stream, restarting stream");
-        }
-        timeout = std::chrono::milliseconds(0);
-
-        close();
       }
+//      else if (isStalled()) {
+//        if (device->getCurrentAccessMode() == AccessModeMaster) {
+//          logger.warning("Detected stalled stream, restarting stream");
+//        }
+//        timeout = std::chrono::milliseconds(0);
+
+//        close();
+//      }
     } else if (open()) {
       // Whenever we open a stream, monitor it's health ever 100ms
       timeout = std::chrono::milliseconds(100);

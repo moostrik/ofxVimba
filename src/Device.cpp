@@ -70,18 +70,6 @@ bool Device::run(const std::string& name) {
   return true;
 }
 
-AccessMode Device::getAvailableAccessMode() const {
-  VmbAccessModeType accessModeType;
-  auto error = SP_ACCESS(handle)->GetPermittedAccess(accessModeType);
-  AccessMode availableMode = AccessModeNone;
-  if (error == VmbErrorSuccess) {
-    availableMode = translateAccessMode(accessModeType);
-  } else if (error != VmbErrorNotFound) {
-    logger.verbose("Could not get available access modes assumed none", error);
-  }
-  return availableMode;
-}
-
 bool Device::locate(const std::string& name, AVT::VmbAPI::FeaturePtr& feature) {
   return handle->GetFeatureByName(name.c_str(), feature) == VmbErrorSuccess;
 }
@@ -194,6 +182,15 @@ bool Device::inspect() {
   if (error != VmbErrorSuccess) {
     logger.error("Failed to read camera serial", error);
     return false;
+  }
+
+  VmbAccessModeType modes;
+  error = SP_ACCESS(handle)->GetPermittedAccess(modes);
+  if (error == VmbErrorSuccess) {
+    availableMode = translateAccessMode(modes);
+  } else if (error != VmbErrorNotFound) {
+    logger.verbose("Could not get available access modes assumed none", error);
+    availableMode = AccessModeNone;
   }
 
   return true;

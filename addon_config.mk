@@ -8,7 +8,6 @@ meta:
 common:
     ADDON_INCLUDES = libs/Vimba/include
     ADDON_INCLUDES += src
-    ADDON_DEPENDENCIES = ofxXmlSettings
     ADDON_CPPFLAGS = -D_x64
 
 linux64:

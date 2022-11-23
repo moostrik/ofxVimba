@@ -22,17 +22,22 @@ AccessMode translateAccessMode(const VmbAccessModeType &modes);
 VmbAccessModeType translateAccessMode(const AccessMode &mode);
 
 // Access to features
+
 template <typename ValueType>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, ValueType &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->GetValue(value) == VmbErrorSuccess;
 }
 
+
 template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value);
 
+#ifndef _MSC_VER
 template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, int64_t &value);
+#endif
+
 
 template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, uint64_t &value);

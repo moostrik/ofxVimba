@@ -40,10 +40,11 @@ bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value) {
   return false;
 }
 
+#ifndef _MSC_VER
 template <>
 bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
-                          int64_t &value) {
-  long long tmp;
+                          int64_t &value) {    
+    long long tmp;
 
   if (getFeature(feature, tmp)) {
     value = static_cast<int64_t>(tmp);
@@ -52,6 +53,7 @@ bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
 
   return false;
 }
+#endif
 
 template <>
 bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,

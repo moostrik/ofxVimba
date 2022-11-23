@@ -12,7 +12,7 @@
 #include "Discovery.h"
 #include "Features.h"
 #include "Logger.h"
-#include "Parameters.h"
+//#include "Parameters.h"
 #include "Stream.h"
 #include "System.h"
 
@@ -72,7 +72,7 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   // -- LIST -------------------------------------------------------------------
  public:
   std::vector<ofVideoDevice> listDevices() const override;
-  std::vector<string> listParameters() { return parameters->listParameters(); }
+  //std::vector<string> listParameters() { return parameters->listParameters(); }
 
  private:
   void listCameras(bool _verbose);
@@ -113,7 +113,7 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   std::shared_ptr<ofxVimba::Discovery> discovery;
   std::shared_ptr<ofxVimba::Device> device;
   std::shared_ptr<ofxVimba::Features> features;
-  std::shared_ptr<ofxVimba::Parameters> parameters;
+  //std::shared_ptr<ofxVimba::Parameters> parameters;
   std::shared_ptr<ofxVimba::Stream> stream;
   ofxVimba::Logger logger;
 
@@ -146,8 +146,8 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
 
   // -- PARAMETERS -------------------------------------------------------------
  public:
-  ofParameterGroup getParameters(vector<string> _params = vector<string>(),
-                                 bool useCategories = true);
+  //ofParameterGroup getParameters(vector<string> _params = vector<string>(),
+  //                               bool useCategories = true);
 
  private:
   ofParameterGroup grabberParameters;
@@ -156,7 +156,7 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   ofParameter<bool> pStream;
   ofParameter<int> pFrameCount;
 
-  void buildParameters();
+  //void buildParameters();
   void pSaveListener(bool &_value);
   void pLoadListener(bool &_value);
   void pStreamListener(bool &_value);

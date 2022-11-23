@@ -74,9 +74,9 @@ void ofApp::minimizeNested(ofxGuiGroup &group, ofxGuiGroup *root) {
 void ofApp::updateParameters() {
   panel.clear();
   if (SHOW_ALL_PARAMETERS) {
-    panel.add(vimbaGrabber->getParameters());
+    //panel.add(vimbaGrabber->getParameters());
   } else {
-    panel.add(vimbaGrabber->getParameters(ofxVimba::PARAMETERS_AUTOEXPOSURE));
+    //panel.add(vimbaGrabber->getParameters(ofxVimba::PARAMETERS_AUTOEXPOSURE));
   }
   minimizeNested(panel);
 }

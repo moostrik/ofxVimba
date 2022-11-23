@@ -18,6 +18,10 @@ project.xcworkspace
 *.sublime-workspace
 *.qbs.user
 
+*.vs
+*.obj
+*.rc
+
 # Ignore the standard QT Creator build paths
 build-*
 */build/*

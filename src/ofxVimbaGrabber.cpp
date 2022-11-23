@@ -21,7 +21,7 @@ ofxVimbaGrabber::ofxVimbaGrabber()
   yOffset = 0;
   listCameras(false);
 
-  parameters = std::make_shared<Parameters>();
+  //parameters = std::make_shared<Parameters>();
   features = std::make_shared<Features>();
 }
 
@@ -95,7 +95,7 @@ void ofxVimbaGrabber::update() {
     listCameras(false);
   }
 
-  parameters->update();
+  //parameters->update();
 }
 
 void ofxVimbaGrabber::close() {
@@ -215,7 +215,7 @@ void ofxVimbaGrabber::openDevice(std::shared_ptr<Device> &next) {
   pixelFormat = toOfPixelFormat(features->getString("PixelFormat"));
   framerate = features->getFloat("AcquisitionFrameRateAbs");
 
-  parameters->bind(device);
+  //parameters->bind(device);
   startStream();
 
   if (!bReadOnly) {
@@ -237,7 +237,7 @@ void ofxVimbaGrabber::closeDevice() {
     device = nullptr;
 
     features->unbind();
-    parameters->unbind();
+    //parameters->unbind();
 
     logger.notice("Closed camera connection");
     logger.clearScope();
@@ -456,36 +456,36 @@ void ofxVimbaGrabber::printCameras() const {
 
 // -- PARAMETERS ---------------------------------------------------------------
 
-ofParameterGroup ofxVimbaGrabber::getParameters(vector<string> _params,
-                                                bool useCategories) {
-  ofParameterGroup npg;
-  npg.setName("LOST: " + deviceID);
-
-  if (isConnected()) {
-    ofParameterGroup pg;
-    if (_params.size() == 0) {
-      pg = parameters->get();
-    } else {
-      pg = parameters->get(_params, useCategories);
-    }
-
-    if (bReadOnly) {
-      npg.setName("READ ONLY: " + deviceID);
-    } else {
-      npg.setName("Camera: " + deviceID);
-      npg.add(pSave);
-      npg.add(pLoad);
-#ifdef VIMBA_DEV_MODE
-      // unexpected behaviour when used with ofxVideoGrabber
-      npg.add(pStream);
-#endif
-    }
-    for (int i = 0; i < pg.size(); i++) {
-      npg.add(pg[i]);
-    }
-  }
-  return npg;
-}
+//ofParameterGroup ofxVimbaGrabber::getParameters(vector<string> _params,
+//                                                bool useCategories) {
+//  ofParameterGroup npg;
+//  npg.setName("LOST: " + deviceID);
+//
+//  if (isConnected()) {
+//    ofParameterGroup pg;
+//    if (_params.size() == 0) {
+//      pg = parameters->get();
+//    } else {
+//      pg = parameters->get(_params, useCategories);
+//    }
+//
+//    if (bReadOnly) {
+//      npg.setName("READ ONLY: " + deviceID);
+//    } else {
+//      npg.setName("Camera: " + deviceID);
+//      npg.add(pSave);
+//      npg.add(pLoad);
+//#ifdef VIMBA_DEV_MODE
+//      // unexpected behaviour when used with ofxVideoGrabber
+//      npg.add(pStream);
+//#endif
+//    }
+//    for (int i = 0; i < pg.size(); i++) {
+//      npg.add(pg[i]);
+//    }
+//  }
+//  return npg;
+//}
 
 void ofxVimbaGrabber::pSaveListener(bool &_value) {
   if (_value) {

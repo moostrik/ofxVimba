@@ -11,11 +11,11 @@
 namespace ofxVimba {
 
 struct Version {
-  bool valid;
-  unsigned int major;
-  unsigned int minor;
-  unsigned int patch;
-  std::string string;
+  bool valid = false;
+  unsigned int major = 0;
+  unsigned int minor = 0;
+  unsigned int patch = 0;
+  std::string string = "Unknown";
 };
 
 class System {
@@ -55,7 +55,6 @@ class System {
 
   AVT::VmbAPI::VimbaSystem* api = nullptr;
   Logger logger;
-  Version version = {
-      .valid = false, .major = 0, .minor = 0, .patch = 0, .string = "Unknown"};
+  Version version;
 };
 }  // namespace ofxVimba

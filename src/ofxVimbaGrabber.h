@@ -5,14 +5,12 @@
 #include <string>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
-#include "ofMain.h"
 
 #include "Common.h"
 #include "Device.h"
 #include "Discovery.h"
 #include "Features.h"
 #include "Logger.h"
-//#include "Parameters.h"
 #include "Stream.h"
 #include "System.h"
 
@@ -87,12 +85,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   bool setup(int w, int h) override;
   void update() override;
   void close() override;
-  void loadFeatures() {
-    if (isConnected()) features->load();
-  }
-  void saveFeatures() {
-    if (isConnected()) features->save();
-  }
 
  private:
   void startDiscovery();

@@ -33,7 +33,7 @@ void ofApp::update() {
   if (vimbaGrabber->isConnectionChanged()) {
     updateParameters();
     if (vimbaGrabber->isConnected()) {
-      vimbaGrabber->loadFeatures();
+      //vimbaGrabber->loadFeatures();
     }
   }
 

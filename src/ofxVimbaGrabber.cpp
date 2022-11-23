@@ -490,14 +490,14 @@ void ofxVimbaGrabber::printCameras() const {
 void ofxVimbaGrabber::pSaveListener(bool &_value) {
   if (_value) {
     _value = false;
-    features->save();
+    //features->save();
   }
 }
 
 void ofxVimbaGrabber::pLoadListener(bool &_value) {
   if (_value) {
     _value = false;
-    features->load();
+    //features->load();
   }
 }
 

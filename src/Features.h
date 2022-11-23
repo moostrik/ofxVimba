@@ -1,8 +1,5 @@
 #pragma once
 
-#include "ofMain.h"
-#include "ofxXmlSettings.h"
-
 #include "Device.h"
 #include "Logger.h"
 
@@ -79,9 +76,6 @@ class Features {
 
   bool isBound() const { return device != nullptr; }
   bool isUnbound() const { return device == nullptr; }
-
-  bool load(const std::string& fileName = "");
-  bool save(const std::string& fileName = "") const;
 
   template <typename ValueType>
   void set(const std::string& name, const ValueType& value) {

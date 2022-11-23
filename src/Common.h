@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
-#include "ofMain.h"
+
 
 namespace ofxVimba {
 enum AccessMode {

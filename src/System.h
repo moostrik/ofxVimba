@@ -4,7 +4,6 @@
 #include <string>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
-#include "ofMain.h"
 
 #include "Logger.h"
 

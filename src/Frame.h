@@ -1,7 +1,6 @@
 #pragma once
 
 #include "VimbaCPP/Include/VimbaCPP.h"
-#include "ofMain.h"
 
 #include "Common.h"
 #include "Device.h"

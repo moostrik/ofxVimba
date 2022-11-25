@@ -5,7 +5,6 @@
 
 #include "VimbaCPP/Include/VimbaCPP.h"
 
-#include "Common.h"
 #include "Device.h"
 #include "Logger.h"
 #include "System.h"

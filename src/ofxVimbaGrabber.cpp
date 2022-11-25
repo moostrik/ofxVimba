@@ -4,7 +4,7 @@ using namespace ofxVimba;
 
 ofxVimbaGrabber::ofxVimbaGrabber()
     : logger("ofxVimbaGrabber"), system(ofxVimba::System::getInstance()) {
-  deviceID = DISCOVERY_ANY_ID;  // = ""
+  deviceID = DISCOVERY_ANY_ID;
   pixelFormat = OF_PIXELS_RGB;
   bMulticast = false;
   bReadOnly = false;
@@ -40,15 +40,6 @@ bool ofxVimbaGrabber::setup(int _w, int _h) {
     features->setOffline("AcquisitionMode", "Continuous");
     features->setOffline("ChunkModeActive", "1");
     features->setOffline("PixelFormat", toVimbaPixelFormat(pixelFormat));
-
-    grabberParameters.setName("SaveLoadStream");
-    grabberParameters.add(pSave.set("save", false));
-    grabberParameters.add(pLoad.set("load", false));
-    grabberParameters.add(pStream.set("stream", true));
-    grabberParameters.add(pFrameCount.set("frame count", 0, 0, 0));
-    pSave.addListener(this, &ofxVimbaGrabber::pSaveListener);
-    pLoad.addListener(this, &ofxVimbaGrabber::pLoadListener);
-    pStream.addListener(this, &ofxVimbaGrabber::pStreamListener);
   }
   return true;
 }
@@ -72,7 +63,6 @@ void ofxVimbaGrabber::update() {
 
     frameReceived = false;
     bNewFrame = true;
-    pFrameCount.set(frameCount);
   }
 
   std::unique_lock<std::mutex> lock(deviceMutex, std::try_to_lock);
@@ -454,60 +444,6 @@ void ofxVimbaGrabber::printCameras() const {
   cout << endl;
 }
 
-// -- PARAMETERS ---------------------------------------------------------------
-
-//ofParameterGroup ofxVimbaGrabber::getParameters(vector<string> _params,
-//                                                bool useCategories) {
-//  ofParameterGroup npg;
-//  npg.setName("LOST: " + deviceID);
-//
-//  if (isConnected()) {
-//    ofParameterGroup pg;
-//    if (_params.size() == 0) {
-//      pg = parameters->get();
-//    } else {
-//      pg = parameters->get(_params, useCategories);
-//    }
-//
-//    if (bReadOnly) {
-//      npg.setName("READ ONLY: " + deviceID);
-//    } else {
-//      npg.setName("Camera: " + deviceID);
-//      npg.add(pSave);
-//      npg.add(pLoad);
-//#ifdef VIMBA_DEV_MODE
-//      // unexpected behaviour when used with ofxVideoGrabber
-//      npg.add(pStream);
-//#endif
-//    }
-//    for (int i = 0; i < pg.size(); i++) {
-//      npg.add(pg[i]);
-//    }
-//  }
-//  return npg;
-//}
-
-void ofxVimbaGrabber::pSaveListener(bool &_value) {
-  if (_value) {
-    _value = false;
-    //features->save();
-  }
-}
-
-void ofxVimbaGrabber::pLoadListener(bool &_value) {
-  if (_value) {
-    _value = false;
-    //features->load();
-  }
-}
-
-void ofxVimbaGrabber::pStreamListener(bool &_value) {
-  if (_value) {
-    if (!startStream()) _value = false;
-  } else {
-    stopStream();
-  }
-}
 
 // -- TOOLS --------------------------------------------------------------------
 

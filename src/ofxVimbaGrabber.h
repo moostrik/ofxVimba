@@ -6,7 +6,6 @@
 
 #include "VimbaCPP/Include/VimbaCPP.h"
 
-#include "Common.h"
 #include "Device.h"
 #include "Discovery.h"
 #include "Features.h"
@@ -28,8 +27,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
 
   // -- SET --------------------------------------------------------------------
  public:
-  void setMulticast(bool _value);
-  void setReadOnly(bool _value);
   void setVerbose(bool bTalkToMe) override { bVerbose = bTalkToMe; }
   void setDesiredFrameRate(int framerate) override { setFrameRate(framerate); }
   void setFrameRate(int _value);
@@ -70,7 +67,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   // -- LIST -------------------------------------------------------------------
  public:
   std::vector<ofVideoDevice> listDevices() const override;
-  //std::vector<string> listParameters() { return parameters->listParameters(); }
 
  private:
   void listCameras(bool _verbose);
@@ -80,7 +76,7 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   // -- CORE -------------------------------------------------------------------
  public:
   ofxVimbaGrabber();
-  virtual ~ofxVimbaGrabber() { close(); }
+  virtual ~ofxVimbaGrabber() { ofxVimbaGrabber::close(); }
 
   bool setup(int w, int h) override;
   void update() override;
@@ -105,7 +101,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   std::shared_ptr<ofxVimba::Discovery> discovery;
   std::shared_ptr<ofxVimba::Device> device;
   std::shared_ptr<ofxVimba::Features> features;
-  //std::shared_ptr<ofxVimba::Parameters> parameters;
   std::shared_ptr<ofxVimba::Stream> stream;
   ofxVimba::Logger logger;
 
@@ -135,23 +130,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   bool bWasConnected;
   bool bResolutionChange;
   bool bROIChange;
-
-  // -- PARAMETERS -------------------------------------------------------------
- public:
-  //ofParameterGroup getParameters(vector<string> _params = vector<string>(),
-  //                               bool useCategories = true);
-
- private:
-  ofParameterGroup grabberParameters;
-  ofParameter<bool> pSave;
-  ofParameter<bool> pLoad;
-  ofParameter<bool> pStream;
-  ofParameter<int> pFrameCount;
-
-  //void buildParameters();
-  void pSaveListener(bool &_value);
-  void pLoadListener(bool &_value);
-  void pStreamListener(bool &_value);
 
   // -- TOOLS ------------------------------------------------------------------
  private:

@@ -1,3 +1,3 @@
 ofxGui
-ofxXmlSettings
 ofxVimba
+ofxXmlSettings

@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "ofMain.h"
+
 #include "VimbaCPP/Include/VimbaCPP.h"
 
 
@@ -20,6 +22,11 @@ bool isAccessModeAvailable(const AccessMode &requested,
 
 AccessMode translateAccessMode(const VmbAccessModeType &modes);
 VmbAccessModeType translateAccessMode(const AccessMode &mode);
+
+
+ofPixelFormat toOfPixelFormat(string _format);
+string toVimbaPixelFormat(ofPixelFormat _format);
+
 
 // Access to features
 

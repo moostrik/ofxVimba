@@ -9,7 +9,6 @@
 #include "Common.h"
 #include "Device.h"
 #include "Discovery.h"
-//#include "Features.h"
 #include "Logger.h"
 #include "Stream.h"
 #include "System.h"
@@ -125,9 +124,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
  private:
   int hexIdToIntId(string _value) const;
   string intIdToHexId(int _intId) const;
-
-  ofPixelFormat toOfPixelFormat(string _format);
-  string toVimbaPixelFormat(ofPixelFormat _format);
 
   AVT::VmbAPI::CameraPtr getHandle() const {
     return activeDevice ? activeDevice->getHandle() : AVT::VmbAPI::CameraPtr();

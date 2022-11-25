@@ -220,7 +220,6 @@ void ofxVimbaGrabber::closeDevice() {
   }
 }
 
-
 void ofxVimbaGrabber::configureDevice(std::shared_ptr<ofxVimba::Device> &device) {
   activeDevice->run("UserSetLoad");
 
@@ -443,7 +442,6 @@ void ofxVimbaGrabber::printCameras() const {
   cout << endl;
 }
 
-
 // -- TOOLS --------------------------------------------------------------------
 
 int ofxVimbaGrabber::hexIdToIntId(string value) const {
@@ -465,35 +463,4 @@ string ofxVimbaGrabber::intIdToHexId(int _intId) const {
   }
   stringId = "DEV_000F31" + stringId;
   return stringId;
-}
-
-ofPixelFormat ofxVimbaGrabber::toOfPixelFormat(string _format) {
-  if (_format == "Mono8") {
-    return OF_PIXELS_GRAY;
-  } else if (_format == "RGB8Packed") {
-    return OF_PIXELS_RGB;
-  } else if (_format == "BGR8Packed") {
-    return OF_PIXELS_BGR;
-  } else if (_format == "YUV422Packed") {
-    return OF_PIXELS_YUY2;
-  }
-  logger.warning("pixel format unknown");
-
-  return OF_PIXELS_UNKNOWN;
-}
-
-string ofxVimbaGrabber::toVimbaPixelFormat(ofPixelFormat _format) {
-  switch (_format) {
-    case OF_PIXELS_GRAY:
-      return "Mono8";
-    case OF_PIXELS_RGB:
-      return "RGB8Packed";
-    case OF_PIXELS_BGR:
-      return "BGR8Packed";
-    case OF_PIXELS_YUY2:
-      return "YUV422Packed";
-    default:
-      logger.warning("pixel format unknown");
-      return "";
-  }
 }

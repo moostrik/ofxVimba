@@ -6,9 +6,10 @@
 
 #include "VimbaCPP/Include/VimbaCPP.h"
 
+#include "Common.h"
 #include "Device.h"
 #include "Discovery.h"
-#include "Features.h"
+//#include "Features.h"
 #include "Logger.h"
 #include "Stream.h"
 #include "System.h"
@@ -32,33 +33,24 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   void setFrameRate(int _value);
   void setWidth(int _value);
   void setHeight(int _value);
-  void setFeature(string _n, string _v) {
-    features->setOffline(_n, _v);
-  }
+  void setFeature(string _n, string _v) { "features->setOffline(_n, _v);"; }
 
   // -- GET --------------------------------------------------------------------
  public:
   bool isInitialized() const override { return bInited; }
-  bool isConnected() const { return device != nullptr; }
-  bool isDisconnected() const { return device == nullptr; }
+  bool isConnected() const { return activeDevice != nullptr; }
+  bool isDisconnected() const { return activeDevice == nullptr; }
   bool isConnecting() const { return discovery && isDisconnected(); }
   bool isStreaming() const { return stream != nullptr; }
-  bool isConnectionChanged() const { return (isConnected() != bWasConnected); }
+  bool isConnectionChanged() const { return (isConnected() != bIsConnected); }
   bool isResolutionChanged() const { return bResolutionChange; }
-  bool isROIChanged() const { return bROIChange; }
   bool isFrameNew() const override { return bNewFrame; }
 
   float getWidth() const override { return width; }
   float getHeight() const override { return height; }
   float getFrameRate();
 
-  float getFloatFeature(string _name) { return features->getFloat(_name); }
-  int getIntFeature(string _name) { return features->getInt(_name); }
-  bool getBoolFeature(string _name) { return features->getBool(_name); }
-  string getStringFeature(string _name) { return features->getString(_name); }
-
-  glm::vec2 getFloatRange(string _nam) { return features->getFloatRange(_nam); }
-  glm::ivec2 getIntRange(string _name) { return features->getIntRange(_name); }
+  string getFeature(string featureName) { return ""; }
 
   ofPixelFormat getPixelFormat() const override { return pixelFormat; }
   ofPixels &getPixels() override { return pixels; }
@@ -92,15 +84,19 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   bool filterDevice(std::shared_ptr<ofxVimba::Device> &device);
   void openDevice(std::shared_ptr<ofxVimba::Device> &device);
   void closeDevice();
+  void configureDevice(std::shared_ptr<ofxVimba::Device> &device);
 
   bool startStream();
   void stopStream();
+
+  std::mutex frameMutex;
   void onFrame(const std::shared_ptr<ofxVimba::Frame> &frame);
+  std::shared_ptr<ofxVimba::Frame> receivedFrame;
+  std::atomic<int> frameCount;
 
   std::shared_ptr<ofxVimba::System> system;
   std::shared_ptr<ofxVimba::Discovery> discovery;
-  std::shared_ptr<ofxVimba::Device> device;
-  std::shared_ptr<ofxVimba::Features> features;
+  std::shared_ptr<ofxVimba::Device> activeDevice;
   std::shared_ptr<ofxVimba::Stream> stream;
   ofxVimba::Logger logger;
 
@@ -108,11 +104,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   std::mutex deviceMutex;
 
   ofPixels pixels;
-  std::mutex pixelUpload;
-  std::atomic<int> pixelIndex;
-  std::vector<ofPixels> pixelsVector;
-  std::atomic<int> frameCount;
-  std::atomic<bool> frameReceived;
 
   string deviceID;
   int width;
@@ -127,9 +118,8 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   bool bReadOnly;
   bool bInited;
   bool bNewFrame;
-  bool bWasConnected;
+  bool bIsConnected;
   bool bResolutionChange;
-  bool bROIChange;
 
   // -- TOOLS ------------------------------------------------------------------
  private:
@@ -140,6 +130,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   string toVimbaPixelFormat(ofPixelFormat _format);
 
   AVT::VmbAPI::CameraPtr getHandle() const {
-    return device ? device->getHandle() : AVT::VmbAPI::CameraPtr();
+    return activeDevice ? activeDevice->getHandle() : AVT::VmbAPI::CameraPtr();
   };
 };

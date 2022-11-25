@@ -19,41 +19,40 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
  public:
   // -- SET BEFORE SETUP -------------------------------------------------------
  public:
-  void setDeviceID(int _simpleDeviceID) override;
-  void setDeviceID(string _deviceID);
-  bool setPixelFormat(ofPixelFormat _value) override;
+  void setDeviceID(int simpleDeviceID) override;
+  void setDeviceID(string deviceID);
+  bool setPixelFormat(ofPixelFormat value) override;
   void enableMulticast();
   void enableReadOnly();
+  void enableUserSetLoad();
 
   // -- SET --------------------------------------------------------------------
  public:
-  void setVerbose(bool bTalkToMe) override { bVerbose = bTalkToMe; }
+  void setVerbose(bool bTalkToMe)         override { ; }
   void setDesiredFrameRate(int framerate) override { setFrameRate(framerate); }
   void setFrameRate(int _value);
   void setWidth(int _value);
   void setHeight(int _value);
-  void setFeature(string _n, string _v) { "features->setOffline(_n, _v);"; }
 
   // -- GET --------------------------------------------------------------------
  public:
-  bool isInitialized() const override { return bInited; }
-  bool isConnected() const { return activeDevice != nullptr; }
-  bool isDisconnected() const { return activeDevice == nullptr; }
-  bool isConnecting() const { return discovery && isDisconnected(); }
-  bool isStreaming() const { return stream != nullptr; }
-  bool isConnectionChanged() const { return (isConnected() != bIsConnected); }
-  bool isResolutionChanged() const { return bResolutionChange; }
-  bool isFrameNew() const override { return bNewFrame; }
+  bool isInitialized()        const override { return bInited; }
+  bool isConnected()          const { return activeDevice != nullptr; }
+  bool isDisconnected()       const { return activeDevice == nullptr; }
+  bool isConnecting()         const { return discovery && isDisconnected(); }
+  bool isStreaming()          const { return stream != nullptr; }
+  bool isConnectionChanged()  const { return (isConnected() != bIsConnected); }
+  bool isResolutionChanged()  const { return bResolutionChange; }
+  bool isFrameNew()           const override { return bNewFrame; }
 
-  float getWidth() const override { return width; }
-  float getHeight() const override { return height; }
-  float getFrameRate();
+  float getWidth()            const override { return width; }
+  float getHeight()           const override { return height; }
+  float getFrameRate()        const { return framerate; }
+  string getDeviceId()        const { return deviceID; };
 
-  string getFeature(string featureName) { return ""; }
-
-  ofPixelFormat getPixelFormat() const override { return pixelFormat; }
-  ofPixels &getPixels() override { return pixels; }
-  const ofPixels &getPixels() const override { return pixels; }
+  ofPixelFormat getPixelFormat()  const override { return pixelFormat; }
+  ofPixels &getPixels()           override { return pixels; }
+  const ofPixels &getPixels()     const override { return pixels; }
 
   // -- LIST -------------------------------------------------------------------
  public:
@@ -112,9 +111,9 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   float framerate;
   ofPixelFormat pixelFormat;
 
-  bool bVerbose;
   bool bMulticast;
   bool bReadOnly;
+  bool bUserSetLoad;
   bool bInited;
   bool bNewFrame;
   bool bIsConnected;

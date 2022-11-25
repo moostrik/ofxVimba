@@ -1,16 +1,12 @@
 #include "ofApp.h"
-// artist and technologist
-// my main activity is capture and remix human behavior
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-  // ofSetLogLevel(OF_LOG_VERBOSE);
   vimbaGrabber = std::make_shared<ofxVimbaGrabber>();
-  vimbaGrabber->enableMulticast();
 
-  // vimbaGrabber->setIntFeature("DecimationHorizontal", 2);
-  // vimbaGrabber->setIntFeature("DecimationVertical", 2);
-  // vimbaGrabber->enableReadOnly();
+//  vimbaGrabber->enableMulticast();
+//  vimbaGrabber->enableReadOnly();
+//  vimbaGrabber->enableUserSetLoad();
 
   grabber.setGrabber(vimbaGrabber);
   vector<ofVideoDevice> devices = grabber.listDevices();
@@ -19,27 +15,16 @@ void ofApp::setup() {
   }
 
   grabber.setDesiredFrameRate(60);
-  grabber.setup(1280, 720, true);
-
-  panel.setDefaultWidth(300);
-  panel.setup("settings");
-  updateParameters();
+  grabber.setup(ofGetWindowWidth(), ofGetWindowHeight(), true);
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
   grabber.update();
 
-  if (vimbaGrabber->isConnectionChanged()) {
-    updateParameters();
-    if (vimbaGrabber->isConnected()) {
-      //vimbaGrabber->loadFeatures();
-    }
-  }
-
   if (vimbaGrabber->isResolutionChanged()) {
-    ofSetWindowShape(max((int)vimbaGrabber->getWidth(), 1024),
-                     max((int)vimbaGrabber->getHeight(), 768));
+    ofSetWindowShape(max((int)vimbaGrabber->getWidth(), 128),
+                     max((int)vimbaGrabber->getHeight(), 128));
   }
 }
 
@@ -49,34 +34,6 @@ void ofApp::draw() {
 
   if (grabber.isInitialized()) {
     grabber.draw(0, 0);
+    ofDrawBitmapStringHighlight(vimbaGrabber->getDeviceId(), glm::vec2(10,20));
   }
-
-  panel.draw();
-}
-
-//--------------------------------------------------------------
-void ofApp::keyPressed(int key) {}
-
-//--------------------------------------------------------------
-void ofApp::minimizeNested(ofxGuiGroup &group, ofxGuiGroup *root) {
-  if (group.getParent() && group.getParent() != root) {
-    group.minimize();
-  }
-
-  for (std::size_t i = 0; i < group.getNumControls(); i++) {
-    ofxGuiGroup *child = dynamic_cast<ofxGuiGroup *>(group.getControl(i));
-    if (child) minimizeNested(*child, root ? root : &group);
-  }
-}
-
-//--------------------------------------------------------------
-
-void ofApp::updateParameters() {
-  panel.clear();
-  if (SHOW_ALL_PARAMETERS) {
-    //panel.add(vimbaGrabber->getParameters());
-  } else {
-    //panel.add(vimbaGrabber->getParameters(ofxVimba::PARAMETERS_AUTOEXPOSURE));
-  }
-  minimizeNested(panel);
 }

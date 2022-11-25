@@ -41,8 +41,6 @@ bool Discovery::stop() {
   return true;
 }
 
-bool Discovery::restart() { return stop() && start(); }
-
 void Discovery::Observer::discover() {
   if (!system->isAvailable()) {
     logger.error(

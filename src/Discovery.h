@@ -25,7 +25,7 @@ class Discovery {
 
   bool start();
   bool stop();
-  bool restart();
+  bool restart() { return stop() && start(); }
 
   // Status information
   bool isStarted() const { return !isStopped(); }

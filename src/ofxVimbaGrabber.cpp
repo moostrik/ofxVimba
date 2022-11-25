@@ -9,8 +9,7 @@ ofxVimbaGrabber::ofxVimbaGrabber() :
   xOffset(0), yOffset(0),
   framerate(0),
   pixelFormat (OF_PIXELS_RGB),
-  bVerbose(false),
-  bMulticast(false), bReadOnly(false),
+  bMulticast(false), bReadOnly(false), bUserSetLoad(false),
   bInited(false),
   bNewFrame(false),
   bIsConnected(false),
@@ -48,7 +47,7 @@ void ofxVimbaGrabber::update() {
       return;
     }
 
-    bResolutionChange = (width != int(pixels.getWidth()) || height != int(pixels.getHeight()));
+    bResolutionChange = (width != int(source.getWidth()) || height != int(source.getHeight()));
     width = source.getWidth();
     height = source.getHeight();
     pixelFormat = source.getPixelFormat();
@@ -221,7 +220,6 @@ void ofxVimbaGrabber::closeDevice() {
 }
 
 void ofxVimbaGrabber::configureDevice(std::shared_ptr<ofxVimba::Device> &device) {
-  activeDevice->run("UserSetLoad");
 
   activeDevice->run("GVSPAdjustPacketSize");
   VmbInt64_t GVSPPacketSize;
@@ -230,10 +228,14 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<ofxVimba::Device> &device)
 
   device->set("MulticastEnable", bMulticast);
 
-  device->set("TriggerSource", "FixedRate");
-  device->set("AcquisitionMode", "Continuous");
-  device->set("ChunkModeActive", "1");
-  device->set("PixelFormat", toVimbaPixelFormat(pixelFormat));
+  if (bUserSetLoad) {
+    activeDevice->run("UserSetLoad");
+  } else {
+    device->set("TriggerSource", "FixedRate");
+    device->set("AcquisitionMode", "Continuous");
+    device->set("ChunkModeActive", "1");
+    device->set("PixelFormat", toVimbaPixelFormat(pixelFormat));
+  }
 
   string vmbPixelFormat;
   device->get("PixelFormat", vmbPixelFormat);
@@ -333,15 +335,20 @@ void ofxVimbaGrabber::enableReadOnly() {
   bReadOnly = true;
 }
 
+void ofxVimbaGrabber::enableUserSetLoad() {
+  if (bInited) {
+    logger.warning("Cannot enable user set load when inizialized");
+    return;
+  }
+
+  bUserSetLoad = true;
+}
+
 // -- SET ----------------------------------------------------------------------
 
 void ofxVimbaGrabber::setWidth(int value) {
   if (isConnected()) {
     activeDevice->set("Width", value);
-    int v;
-    activeDevice->get("Width", v);
-    if (v != value) logger.notice("width set to " + ofToString(v));
-    width = v;
   } else {
     width = value;
   }
@@ -350,10 +357,6 @@ void ofxVimbaGrabber::setWidth(int value) {
 void ofxVimbaGrabber::setHeight(int value) {
   if (isConnected()) {
     activeDevice->set("Height", value);
-    int v;
-    activeDevice->get("Height", v);
-    if (v != value) logger.notice("Height set to " + ofToString(v));
-    height = v;
   } else {
     height = value;
   }
@@ -369,12 +372,6 @@ void ofxVimbaGrabber::setFrameRate(int value) {
   } else {
     framerate = value;
   }
-}
-
-// -- GET ----------------------------------------------------------------------
-
-float ofxVimbaGrabber::getFrameRate() {
-  return framerate;
 }
 
 // -- LIST ---------------------------------------------------------------------

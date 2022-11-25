@@ -120,11 +120,13 @@ bool ofxVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
   return setFeature(feature, static_cast<long long>(value));
 }
 
+#ifndef _MSC_VER
 template <>
 bool ofxVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
                           const int64_t &value) {
   return setFeature(feature, static_cast<long long>(value));
 }
+#endif
 
 template <>
 bool ofxVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,

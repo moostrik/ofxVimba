@@ -45,7 +45,6 @@ template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, int64_t &value);
 #endif
 
-
 template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, uint64_t &value);
 
@@ -62,8 +61,10 @@ bool setFeature(const AVT::VmbAPI::FeaturePtr &feature,
 template <>
 bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const int &value);
 
+#ifndef _MSC_VER
 template <>
 bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const int64_t &value);
+#endif
 
 template <>
 bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const uint64_t &value);

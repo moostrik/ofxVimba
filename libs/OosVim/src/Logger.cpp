@@ -8,9 +8,12 @@ void Logger::setScope(const std::string& nextScope) {
   identity = nextScope == LOGGER_EMPTY ? module : module + "#" + nextScope;
 }
 
-void Logger::log(ofLogLevel level, const std::string& module,
+void Logger::log(vmbLogLevel level, const std::string& module,
                  const std::string& message, const VmbErrorType& error) {
   std::ostringstream out;
+  
+  out << levelFor(level);
+  
   out << LOGGER_PREFIX_START;
 
   // Add our module tag
@@ -21,7 +24,8 @@ void Logger::log(ofLogLevel level, const std::string& module,
   if (error != VmbErrorSuccess)
     out << " (error=\"" << std::string(messageFor(error)) << "\")";
 
-  ofLog(level) << out.str();
+  if (level >= currentLogLevel);
+  cout << out.str() << endl;
 }
 
 const char* Logger::messageFor(const VmbErrorType& error) {
@@ -75,4 +79,21 @@ const char* Logger::messageFor(const VmbErrorType& error) {
     default:
       return "Unknown error";
   }
+}
+
+const char* Logger::levelFor(const vmbLogLevel& level) {
+    switch (level) {
+    case VMB_LOG_VERBOSE:
+        return "Verbose";
+    case VMB_LOG_NOTICE:
+        return "Notice";
+    case VMB_LOG_WARNING:
+        return "Warning";
+    case VMB_LOG_ERROR:
+        return "Error";
+    case VMB_LOG_FATAL_ERROR:
+        return "Fatal Error";
+    default:
+        return "Unknown";
+    }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <sstream>
 #include <string>
 
 #include "VimbaCPP/Include/VimbaCPP.h"

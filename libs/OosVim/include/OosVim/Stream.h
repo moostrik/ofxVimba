@@ -3,6 +3,8 @@
 #include <atomic>
 #include <chrono>
 #include <mutex>
+#include <thread>
+#include <condition_variable>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
 #include "ofMain.h"

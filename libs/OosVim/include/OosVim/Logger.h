@@ -2,9 +2,10 @@
 
 #include <memory>
 #include <string>
+#include <sstream>
+#include <iostream>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
-#include "ofMain.h"
 
 
 #define OFX_VMB_LOG_LEVEL(alias, level)                                   \

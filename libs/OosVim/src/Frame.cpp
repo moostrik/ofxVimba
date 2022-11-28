@@ -83,9 +83,6 @@ bool Frame::load(const AVT::VmbAPI::FramePtr& framePtr) {
   if (getAncillary("ChunkAcquisitionFrameCount", fc)) frameCount = fc;
   else frameCount++;
 
-  // Populate the current pixels
-  //  pixels.setFromPixels(data, width, height, getPixelFormat());
-
   return true;
 }
 

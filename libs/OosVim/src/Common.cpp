@@ -1,5 +1,4 @@
 #include "OosVim/Common.h"
-#include "OosVim/Logger.h"
 
 using namespace ofxVimba;
 

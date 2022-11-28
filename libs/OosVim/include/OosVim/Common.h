@@ -2,10 +2,9 @@
 
 #include <memory>
 
-#include "ofMain.h"
-
 #include "VimbaCPP/Include/VimbaCPP.h"
 
+#include "Logger.h"
 
 namespace ofxVimba {
 enum AccessMode {

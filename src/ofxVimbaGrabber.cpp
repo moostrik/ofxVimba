@@ -3,7 +3,8 @@
 using namespace ofxVimba;
 
 ofxVimbaGrabber::ofxVimbaGrabber() :
-  logger("ofxVimbaGrabber"), system(ofxVimba::System::getInstance()),
+  logger("ofxVimbaGrabber"),
+  system(ofxVimba::System::getInstance()),
   deviceID (DISCOVERY_ANY_ID),
   width(0), height(0),
   xOffset(0), yOffset(0),
@@ -160,7 +161,8 @@ bool ofxVimbaGrabber::filterDevice(std::shared_ptr<Device> &device) {
   AccessMode requestedAccesMode = bReadOnly ? AccessModeRead : AccessModeMaster;
 
   if (device->getAvailableAccessMode() < requestedAccesMode) {
-    logger.warning("requested access mode is not available");
+    ofLogWarning("ofxVimbaGrabber::openDevice") << device->getId() << " acces mode " << requestedAccesMode <<
+                                    " not available. Availability is " << device->getAvailableAccessMode();
     return false;
   }
 
@@ -422,26 +424,26 @@ void ofxVimbaGrabber::listCameras(bool _verbose) {
 }
 
 void ofxVimbaGrabber::printCameras() const {
-  cout << endl;
-  cout << "####################################################################"
-          "######################"
-       << endl;
-  cout << "##             LISTING CAMERAS" << endl;
+  std::ostringstream out;
+  out << endl;
+  out << "##########################################################################################";
+  out << endl;
+  out << "##             LISTING CAMERAS" << endl;
   for (int i = 0; i < (int)ofDevices.size(); i++) {
     auto dev = ofDevices[i];
-    cout << "##  " << i << "  name: " << dev.deviceName.c_str()
+    out << "##  " << i << "  name: " << dev.deviceName.c_str()
          << "  simple id: " << dev.id << "  id: " << intIdToHexId(dev.id)
          << "  available: " << dev.bAvailable << endl;
   }
   if (ofDevices.size() == 0) {
-    cout << "## no cameras found" << endl;
+    out << "## no cameras found" << endl;
   }
 
-  cout << "##" << endl;
-  cout << "####################################################################"
-          "######################"
-       << endl;
-  cout << endl;
+  out << "##" << endl;
+  out << "##########################################################################################";
+  out << endl;
+  out << endl;
+  cout << out.str() << endl;
 }
 
 // -- TOOLS --------------------------------------------------------------------

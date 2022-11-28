@@ -9,6 +9,8 @@
 #include "Logger.h"
 #include "System.h"
 
+#include "ofMain.h"
+
 namespace ofxVimba {
 static const std::string DISCOVERY_ANY_ID = "";
 

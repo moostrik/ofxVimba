@@ -11,9 +11,9 @@ void Logger::setScope(const std::string& nextScope) {
 void Logger::log(vmbLogLevel level, const std::string& module,
                  const std::string& message, const VmbErrorType& error) {
   std::ostringstream out;
-  
+
   out << levelFor(level);
-  
+
   out << LOGGER_PREFIX_START;
 
   // Add our module tag
@@ -25,7 +25,7 @@ void Logger::log(vmbLogLevel level, const std::string& module,
     out << " (error=\"" << std::string(messageFor(error)) << "\")";
 
   if (level >= currentLogLevel);
-  cout << out.str() << endl;
+  std::cout << out.str() << std::endl;
 }
 
 const char* Logger::messageFor(const VmbErrorType& error) {

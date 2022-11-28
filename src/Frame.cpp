@@ -2,6 +2,14 @@
 
 using namespace ofxVimba;
 
+Frame::Frame(std::shared_ptr<Device>& device) :
+  device(device),
+  id(0),
+  timestamp(0), frameCount(0),
+  width(0), height(0),
+  size(0)
+{};
+
 Frame::~Frame() {
   if (!SP_ISNULL(ancilleryData)) ancilleryData->Close();
 }
@@ -70,6 +78,10 @@ bool Frame::load(const AVT::VmbAPI::FramePtr& framePtr) {
       SP_RESET(ancilleryData);
     }
   }
+
+  uint64_t fc;
+  if (getAncillary("ChunkAcquisitionFrameCount", fc)) frameCount = fc;
+  else frameCount++;
 
   // Populate the current pixels
   pixels.setFromPixels(data, width, height, getPixelFormat());

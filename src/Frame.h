@@ -12,7 +12,7 @@ class Frame {
   friend Stream;
 
  public:
-  Frame(std::shared_ptr<Device>& device) : device(device){};
+  Frame(std::shared_ptr<Device>& device);
   ~Frame();
 
   const uint64_t& getId() const { return id; }
@@ -25,8 +25,7 @@ class Frame {
   const ofPixels& getPixels() const { return pixels; }
   const std::shared_ptr<Device>& getDevice() const { return device; }
 
-  bool getAncillaryFeature(const std::string& name,
-                           AVT::VmbAPI::FeaturePtr& feature) const;
+  bool getAncillaryFeature(const std::string& name, AVT::VmbAPI::FeaturePtr& feature) const;
 
   template <typename ValueType>
   bool getAncillary(const std::string& name, ValueType& value) const {
@@ -41,8 +40,7 @@ class Frame {
   }
 
   template <typename ValueType>
-  bool getAncillary(const AVT::VmbAPI::FeaturePtr& feature,
-                    ValueType& value) const {
+  bool getAncillary(const AVT::VmbAPI::FeaturePtr& feature, ValueType& value) const {
     return getFeature(feature, value);
   }
 
@@ -54,6 +52,7 @@ class Frame {
 
   uint64_t id;
   uint64_t timestamp;
+  uint64_t frameCount;
   uint32_t width;
   uint32_t height;
   uint32_t size;

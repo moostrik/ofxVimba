@@ -1,4 +1,4 @@
-#include "Frame.h"
+#include "OosVim/Frame.h"
 
 using namespace ofxVimba;
 
@@ -84,24 +84,8 @@ bool Frame::load(const AVT::VmbAPI::FramePtr& framePtr) {
   else frameCount++;
 
   // Populate the current pixels
-  pixels.setFromPixels(data, width, height, getPixelFormat());
+  //  pixels.setFromPixels(data, width, height, getPixelFormat());
 
   return true;
 }
 
-ofPixelFormat Frame::getPixelFormat() {
-  switch (format) {
-    case VmbPixelFormatMono8:
-      return OF_PIXELS_GRAY;
-    case VmbPixelFormatRgb8:
-      return OF_PIXELS_RGB;
-    case VmbPixelFormatBgr8:
-      return OF_PIXELS_BGR;
-    case VmbPixelFormatRgba8:
-      return OF_PIXELS_RGBA;
-    case VmbPixelFormatBgra8:
-      return OF_PIXELS_BGRA;
-    default:
-      return OF_PIXELS_UNKNOWN;
-  }
-}

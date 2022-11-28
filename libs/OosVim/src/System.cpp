@@ -1,6 +1,6 @@
 #include <sstream>
 
-#include "System.h"
+#include "OosVim/System.h"
 using namespace ofxVimba;
 
 System::System() : logger("System") { initialize(); }

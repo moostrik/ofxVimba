@@ -22,7 +22,7 @@ class Frame {
   const uint32_t& getImageSize() const { return size; }
   const unsigned char* getImageData() const { return data; }
   const VmbPixelFormatType& getImageFormat() const { return format; }
-  const ofPixels& getPixels() const { return pixels; }
+//  const ofPixels& getPixels() const { return pixels; }
   const std::shared_ptr<Device>& getDevice() const { return device; }
 
   bool getAncillaryFeature(const std::string& name, AVT::VmbAPI::FeaturePtr& feature) const;
@@ -64,8 +64,8 @@ class Frame {
   unsigned char* data;
 
   // Converted to a ofPixels object
-  ofPixels pixels;
-  ofPixelFormat getPixelFormat();
+//  ofPixels pixels;
+//  ofPixelFormat getPixelFormat();
 
   // Ancillery data access
   AVT::VmbAPI::AncillaryDataPtr ancilleryData;

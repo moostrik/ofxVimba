@@ -13,8 +13,7 @@ ofxVimbaGrabber::ofxVimbaGrabber() :
   bInited(false),
   bNewFrame(false),
   bIsConnected(false),
-  bResolutionChange(false),
-  frameCount(0)
+  bResolutionChange(false)
 {
   listCameras(false);
 }
@@ -25,6 +24,9 @@ bool ofxVimbaGrabber::setup(int _w, int _h) {
   width = _w;
   height = _h;
 
+  pixels = std::make_shared<ofPixels>();
+  pixels->allocate(width, height, pixelFormat);
+
   bInited = true;
   return true;
 }
@@ -34,28 +36,24 @@ void ofxVimbaGrabber::update() {
   bNewFrame = false;
   bResolutionChange = false;
 
-  std::shared_ptr<ofxVimba::Frame> newFrame = nullptr;
+  std::shared_ptr<ofPixels> newPixels = nullptr;
   {
     std::lock_guard<std::mutex> lock(frameMutex);
-    newFrame.swap(receivedFrame);
+    newPixels.swap(receivedPixels);
   }
 
-  if (newFrame) {
-    auto &source = newFrame->getPixels();
-    if (source.getPixelFormat() == OF_PIXELS_UNKNOWN) {
+  if (newPixels) {
+    if (newPixels->getPixelFormat() == OF_PIXELS_UNKNOWN) {
       ofLogWarning("onFrame") << "Received unknown pixel format";
       return;
     }
 
-    bResolutionChange = (width != int(source.getWidth()) || height != int(source.getHeight()));
-    width = source.getWidth();
-    height = source.getHeight();
-    pixelFormat = source.getPixelFormat();
+    bResolutionChange = (width != int(newPixels->getWidth()) || height != int(newPixels->getHeight()));
+    width = newPixels->getWidth();
+    height = newPixels->getHeight();
+    pixelFormat = newPixels->getPixelFormat();
 
-    // Allocate is applied only when resolution of pixelformat has changed
-    pixels.allocate(width, height, pixelFormat);
-
-    memcpy(pixels.getData(), source.getData(), source.getTotalBytes());
+    pixels.swap(newPixels);
 
     bNewFrame = true;
   }
@@ -234,16 +232,16 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<ofxVimba::Device> &device)
     device->set("TriggerSource", "FixedRate");
     device->set("AcquisitionMode", "Continuous");
     device->set("ChunkModeActive", "1");
-    device->set("PixelFormat", toVimbaPixelFormat(pixelFormat));
+    device->set("PixelFormat", ofxVimbaUtils::getVimbaPixelFormat(pixelFormat));
   }
 
   string vmbPixelFormat;
   device->get("PixelFormat", vmbPixelFormat);
-  auto v = toOfPixelFormat(vmbPixelFormat);
+  auto ofPixelFormat = ofxVimbaUtils::getOfPixelFormat(vmbPixelFormat);
 
-  if (v != toOfPixelFormat(vmbPixelFormat)) {
-    logger.notice("pixel format set to " + ofToString(v));
-    pixelFormat = v;
+  if (pixelFormat != ofPixelFormat) {
+    logger.notice("pixel format set to " + ofToString(ofPixelFormat));
+    pixelFormat = ofPixelFormat;
   }
 
   setWidth(width);
@@ -276,12 +274,13 @@ void ofxVimbaGrabber::stopStream() {
 }
 
 void ofxVimbaGrabber::onFrame(const std::shared_ptr<ofxVimba::Frame> &frame) {
-  int fc;
-  if (frame->getAncillary("ChunkAcquisitionFrameCount", fc)) {
-    frameCount = fc;
-  }
+  auto newPixels = std::make_shared<ofPixels>();
+
+  // setFromPixels copies the pixel data, as the data from the frame should not be used outside of this scope;
+  newPixels->setFromPixels(frame->getImageData(), frame->getWidth(), frame->getHeight(), ofxVimbaUtils::getOfPixelFormat(frame->getImageFormat()));
+
   std::lock_guard<std::mutex> lock(frameMutex);
-  receivedFrame = frame;
+  receivedPixels.swap(newPixels);
 }
 
 // -- SET BEFORE SETUP ---------------------------------------------------------
@@ -349,6 +348,9 @@ void ofxVimbaGrabber::enableUserSetLoad() {
 void ofxVimbaGrabber::setWidth(int value) {
   if (isConnected()) {
     activeDevice->set("Width", value);
+    int v;
+    activeDevice->get("Width", v);
+    if (v != value) logger.notice("Width set to " + ofToString(v));
   } else {
     width = value;
   }
@@ -357,6 +359,9 @@ void ofxVimbaGrabber::setWidth(int value) {
 void ofxVimbaGrabber::setHeight(int value) {
   if (isConnected()) {
     activeDevice->set("Height", value);
+    int v;
+    activeDevice->get("Height", v);
+    if (v != value) logger.notice("Height set to " + ofToString(v));
   } else {
     height = value;
   }

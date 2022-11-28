@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Common.h"
-#include "Device.h"
-#include "Discovery.h"
-#include "Frame.h"
-#include "Logger.h"
-#include "Stream.h"
-#include "System.h"
+
+#include "OosVim/Common.h"
+#include "OosVim/Device.h"
+#include "OosVim/Discovery.h"
+#include "OosVim/Frame.h"
+#include "OosVim/Logger.h"
+#include "OosVim/Stream.h"
+#include "OosVim/System.h"
+

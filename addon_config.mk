@@ -7,6 +7,7 @@ meta:
 
 common:
     ADDON_INCLUDES = libs/Vimba/include
+    ADDON_INCLUDES += libs/OosVim/include
     ADDON_INCLUDES += src
     ADDON_CPPFLAGS = -D_x64
 

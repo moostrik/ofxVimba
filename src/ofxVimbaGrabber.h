@@ -4,14 +4,8 @@
 #include <memory>
 #include <string>
 
-#include "VimbaCPP/Include/VimbaCPP.h"
-
-#include "Common.h"
-#include "Device.h"
-#include "Discovery.h"
-#include "Logger.h"
-#include "Stream.h"
-#include "System.h"
+#include "ofxVimba.h"
+#include "ofxVimbaUtils.h"
 
 #define VIMBA_DEV_MODE
 
@@ -51,8 +45,8 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   string getDeviceId()        const { return deviceID; };
 
   ofPixelFormat getPixelFormat()  const override { return pixelFormat; }
-  ofPixels &getPixels()           override { return pixels; }
-  const ofPixels &getPixels()     const override { return pixels; }
+  ofPixels &getPixels()           override { return *pixels; }
+  const ofPixels &getPixels()     const override { return *pixels; }
 
   // -- LIST -------------------------------------------------------------------
  public:
@@ -89,8 +83,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
 
   std::mutex frameMutex;
   void onFrame(const std::shared_ptr<ofxVimba::Frame> &frame);
-  std::shared_ptr<ofxVimba::Frame> receivedFrame;
-  std::atomic<int> frameCount;
 
   std::shared_ptr<ofxVimba::System> system;
   std::shared_ptr<ofxVimba::Discovery> discovery;
@@ -101,7 +93,8 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   std::shared_ptr<ofxVimba::Device> discoveredDevice;
   std::mutex deviceMutex;
 
-  ofPixels pixels;
+  std::shared_ptr<ofPixels> pixels;
+  std::shared_ptr<ofPixels> receivedPixels;
 
   string deviceID;
   int width;

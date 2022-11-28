@@ -33,4 +33,4 @@ build/**
 !/data
 
 # Ignore library files
-/libs/*
+/libs/Vimba/*

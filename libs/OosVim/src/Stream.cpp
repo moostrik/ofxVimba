@@ -1,4 +1,4 @@
-#include "Stream.h"
+#include "OosVim/Stream.h"
 
 using namespace ofxVimba;
 

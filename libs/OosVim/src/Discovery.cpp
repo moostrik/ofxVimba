@@ -1,4 +1,4 @@
-#include "Discovery.h"
+#include "OosVim/Discovery.h"
 
 using namespace ofxVimba;
 

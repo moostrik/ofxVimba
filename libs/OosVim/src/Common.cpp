@@ -1,5 +1,5 @@
-#include "Common.h"
-#include "Logger.h"
+#include "OosVim/Common.h"
+#include "OosVim/Logger.h"
 
 using namespace ofxVimba;
 
@@ -27,39 +27,6 @@ VmbAccessModeType ofxVimba::translateAccessMode(const AccessMode &mode) {
 
   return VmbAccessModeNone;
 }
-
-
-ofPixelFormat ofxVimba::toOfPixelFormat(string format) {
-  if (format == "Mono8") {
-    return OF_PIXELS_GRAY;
-  } else if (format == "RGB8Packed") {
-    return OF_PIXELS_RGB;
-  } else if (format == "BGR8Packed") {
-    return OF_PIXELS_BGR;
-  } else if (format == "YUV422Packed") {
-    return OF_PIXELS_YUY2;
-  }
-  ofLogWarning("ofxVimba::toOfPixelFormat") << "pixel format  "<< format << " not supported";
-  return OF_PIXELS_UNKNOWN;
-}
-
-string ofxVimba::toVimbaPixelFormat(ofPixelFormat format) {
-  switch (format) {
-    case OF_PIXELS_GRAY:
-      return "Mono8";
-    case OF_PIXELS_RGB:
-      return "RGB8Packed";
-    case OF_PIXELS_BGR:
-      return "BGR8Packed";
-    case OF_PIXELS_YUY2:
-      return "YUV422Packed";
-    default:
-    ofLogWarning("ofxVimba::toVimbaPixelFormat") << "pixel format  "<< format << " not supported";
-      return "";
-  }
-}
-
-
 
 template <>
 bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value) {

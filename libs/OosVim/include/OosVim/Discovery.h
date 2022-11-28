@@ -50,8 +50,7 @@ class Discovery {
       discover();
     };
 
-    virtual void CameraListChanged(AVT::VmbAPI::CameraPtr camera,
-                                   AVT::VmbAPI::UpdateTriggerType reason) {
+    virtual void CameraListChanged(AVT::VmbAPI::CameraPtr camera, AVT::VmbAPI::UpdateTriggerType reason) {
       process(camera, reason);
     }
 
@@ -63,8 +62,7 @@ class Discovery {
     std::string reqID;
 
     void discover();
-    void process(AVT::VmbAPI::CameraPtr camera,
-                 AVT::VmbAPI::UpdateTriggerType reason);
+    void process(AVT::VmbAPI::CameraPtr camera, AVT::VmbAPI::UpdateTriggerType reason);
   };
 
   // Create a logger for discovery

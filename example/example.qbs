@@ -18,9 +18,7 @@ Project{
         ]
 
         of.addons: [
-            'ofxGui',
             'ofxVimba',
-            'ofxXmlSettings',
         ]
 
         // additional flags for the project. the of module sets some

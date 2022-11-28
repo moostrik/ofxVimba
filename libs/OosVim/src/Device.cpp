@@ -1,5 +1,5 @@
-#include "Device.h"
-#include "Logger.h"
+#include "OosVim/Device.h"
+#include "OosVim/Logger.h"
 
 using namespace ofxVimba;
 

@@ -15,12 +15,13 @@ Stream::Stream(const std::shared_ptr<Device> device,
   frames.resize(bufferSize);
 
   SP_SET(observer, new StreamObserver(*this));
+  startTime = std::chrono::steady_clock::now();
 }
 
 Stream::~Stream() { stop(); }
 
 bool Stream::isStalled() const {
-  auto now = ofGetElapsedTimeMillis();
+  auto now = getElapsedTime();
   if (now - frameAt > CAMERA_STALLED_TIMEOUT) {
     return now - connectedAt > CAMERA_INITIALIZE_TIMEOUT;
   }
@@ -89,7 +90,7 @@ void Stream::run() {
     } else if (open()) {
       // Whenever we open a stream, monitor it's health ever 100ms
       timeout = std::chrono::milliseconds(100);
-      connectedAt = ofGetElapsedTimeMillis();
+      connectedAt = getElapsedTime();
     } else {
       // Whenever we cannot open the device, retry in 5 seconds
       timeout = std::chrono::milliseconds(5000);
@@ -145,7 +146,7 @@ bool Stream::receive(AVT::VmbAPI::FramePtr framePtr) {
 
   if (frame->load(framePtr)) {
     // Keep track of our frame rate
-    frameAt = ofGetElapsedTimeMillis();
+    frameAt = getElapsedTime();
 
     // Notify of new frame
     ofNotifyEvent(onFrame, frame, this);
@@ -350,7 +351,7 @@ void StreamObserver::FeatureChanged(const AVT::VmbAPI::FeaturePtr&) {
   if (stream.device->get("PayloadSize", size)) {
     if (!stream.isAllocated(size)) {
       stream.logger.verbose("Stream payload size changed, scheduling resize");
-      stream.resizedAt = ofGetElapsedTimeMillis();
+      stream.resizedAt = stream.getElapsedTime();
     }
   }
 }

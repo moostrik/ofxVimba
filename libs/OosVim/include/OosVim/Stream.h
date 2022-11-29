@@ -5,6 +5,7 @@
 #include <mutex>
 #include <thread>
 #include <condition_variable>
+#include <functional>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
 #include "ofMain.h"
@@ -84,6 +85,13 @@ class Stream {
   std::atomic<uint64_t> connectedAt;
   std::atomic<uint64_t> resizedAt;
   std::atomic<uint64_t> frameAt;
+
+  std::chrono::steady_clock::time_point startTime;
+
+  const uint64_t getElapsedTime() const {
+    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count();
+  }
 };
 
 class StreamObserver : public AVT::VmbAPI::IFrameObserver,

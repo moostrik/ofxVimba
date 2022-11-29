@@ -2,6 +2,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
+  ofSetLogLevel(OF_LOG_VERBOSE);
+
   vimbaGrabber = std::make_shared<ofxVimbaGrabber>();
 
 //  vimbaGrabber->enableMulticast();

@@ -1,6 +1,6 @@
 #include "OosVim/System.h"
 
-using namespace ofxVimba;
+using namespace OosVimba;
 
 System::System() : logger("System") { initialize(); }
 System::~System() { shutdown(); }

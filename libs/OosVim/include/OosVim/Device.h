@@ -6,7 +6,7 @@
 #include "Logger.h"
 #include "System.h"
 
-namespace ofxVimba {
+namespace OosVimba {
 
 class Device {
  public:
@@ -165,4 +165,4 @@ template <>
 bool Device::isOptionAvailable(const AVT::VmbAPI::FeaturePtr& feature,
                                const std::string& option) const;
 
-}  // namespace ofxVimba
+}  // namespace OosVimba

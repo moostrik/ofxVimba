@@ -71,31 +71,31 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   void startDiscovery();
   void stopDiscovery();
 
-  void triggerCallback(std::shared_ptr<ofxVimba::Device> device, const ofxVimba::DiscoveryTrigger trigger);
-  void onDiscoveryFound(std::shared_ptr<ofxVimba::Device> &device);
-  void onDiscoveryUpdate(std::shared_ptr<ofxVimba::Device> &device);
-  void onDiscoveryLost(std::shared_ptr<ofxVimba::Device> &device);
+  void triggerCallback(std::shared_ptr<OosVimba::Device> device, const OosVimba::DiscoveryTrigger trigger);
+  void onDiscoveryFound(std::shared_ptr<OosVimba::Device> &device);
+  void onDiscoveryUpdate(std::shared_ptr<OosVimba::Device> &device);
+  void onDiscoveryLost(std::shared_ptr<OosVimba::Device> &device);
 
-  bool filterDevice(std::shared_ptr<ofxVimba::Device> &device);
-  void openDevice(std::shared_ptr<ofxVimba::Device> &device);
+  bool filterDevice(std::shared_ptr<OosVimba::Device> &device);
+  void openDevice(std::shared_ptr<OosVimba::Device> &device);
   void closeDevice();
-  void configureDevice(std::shared_ptr<ofxVimba::Device> &device);
+  void configureDevice(std::shared_ptr<OosVimba::Device> &device);
 
   bool startStream();
   void stopStream();
 
   std::mutex frameMutex;
-  void frameCallBack(const std::shared_ptr<ofxVimba::Frame> frame);
+  void frameCallBack(const std::shared_ptr<OosVimba::Frame> frame);
 
-  void onFrame(const std::shared_ptr<ofxVimba::Frame> &frame);
+  void onFrame(const std::shared_ptr<OosVimba::Frame> &frame);
 
-  std::shared_ptr<ofxVimba::System> system;
-  std::shared_ptr<ofxVimba::Discovery> discovery;
-  std::shared_ptr<ofxVimba::Device> activeDevice;
-  std::shared_ptr<ofxVimba::Stream> stream;
-  ofxVimba::Logger logger;
+  std::shared_ptr<OosVimba::System> system;
+  std::shared_ptr<OosVimba::Discovery> discovery;
+  std::shared_ptr<OosVimba::Device> activeDevice;
+  std::shared_ptr<OosVimba::Stream> stream;
+  OosVimba::Logger logger;
 
-  std::shared_ptr<ofxVimba::Device> discoveredDevice;
+  std::shared_ptr<OosVimba::Device> discoveredDevice;
   std::mutex deviceMutex;
 
   std::shared_ptr<ofPixels> pixels;

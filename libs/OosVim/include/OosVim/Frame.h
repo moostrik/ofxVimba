@@ -5,7 +5,7 @@
 #include "Common.h"
 #include "Device.h"
 
-namespace ofxVimba {
+namespace OosVimba {
 class Stream;
 class Frame {
   friend Stream;
@@ -65,4 +65,4 @@ class Frame {
   AVT::VmbAPI::AncillaryDataPtr ancilleryData;
   AVT::VmbAPI::FeaturePtrVector ancilleryFeatures;
 };
-}  // namespace ofxVimba
+}  // namespace OosVimba

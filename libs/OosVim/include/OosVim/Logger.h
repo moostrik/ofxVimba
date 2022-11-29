@@ -21,7 +21,7 @@
     return log(level, mod, msg, err);                                     \
   }
 
-namespace ofxVimba {
+namespace OosVimba {
 
 enum vmbLogLevel : short {
   VMB_LOG_VERBOSE,
@@ -33,7 +33,7 @@ enum vmbLogLevel : short {
 
 static vmbLogLevel currentLogLevel = VMB_LOG_NOTICE;
 
-static const std::string LOGGER_PREFIX_START = "[ofxVimba";
+static const std::string LOGGER_PREFIX_START = "[OosVimba";
 static const std::string LOGGER_PREFIX_SCOPE = "::";
 static const std::string LOGGER_PREFIX_END = "] ";
 static const std::string LOGGER_EMPTY = "";
@@ -79,4 +79,4 @@ class Logger {
   std::string module = "";
   std::string identity = "";
 };
-}  // namespace ofxVimba
+}  // namespace OosVimba

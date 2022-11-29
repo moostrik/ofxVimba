@@ -6,7 +6,7 @@
 
 #include "Logger.h"
 
-namespace ofxVimba {
+namespace OosVimba {
 enum AccessMode {
   AccessModeNone = -1,
   AccessModeAuto = 0,
@@ -70,4 +70,4 @@ template <>
 bool setFeature(const AVT::VmbAPI::FeaturePtr &feature,
                 const std::string &value);
 
-}  // namespace ofxVimba
+}  // namespace OosVimba

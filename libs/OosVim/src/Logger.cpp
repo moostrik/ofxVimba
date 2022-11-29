@@ -1,6 +1,6 @@
 #include "OosVim/Logger.h"
 
-using namespace ofxVimba;
+using namespace OosVimba;
 
 void Logger::clearScope() { identity = module; }
 void Logger::setScope() { identity = module; }

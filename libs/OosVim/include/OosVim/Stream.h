@@ -13,7 +13,7 @@
 #include "Frame.h"
 #include "Logger.h"
 
-namespace ofxVimba {
+namespace OosVimba {
 static const uint64_t CAMERA_STALLED_TIMEOUT = 1500;
 static const uint64_t CAMERA_INITIALIZE_TIMEOUT = 1000;
 
@@ -116,4 +116,4 @@ class StreamObserver : public AVT::VmbAPI::IFrameObserver,
   std::mutex mutex;
   bool running = false;
 };
-}  // namespace ofxVimba
+}  // namespace OosVimba

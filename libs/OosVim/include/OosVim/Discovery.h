@@ -10,7 +10,7 @@
 #include "Logger.h"
 #include "System.h"
 
-namespace ofxVimba {
+namespace OosVimba {
 static const std::string DISCOVERY_ANY_ID = "";
 
 enum DiscoveryTrigger {
@@ -82,4 +82,4 @@ class Discovery {
   // Observe for a next camera to connect to
   SP_DECL(Observer) observer;
 };
-}  // namespace ofxVimba
+}  // namespace OosVimba

@@ -4,8 +4,8 @@ using namespace ofxVimba;
 
 ofxVimbaGrabber::ofxVimbaGrabber() :
   logger("ofxVimbaGrabber"),
-  system(ofxVimba::System::getInstance()),
-  deviceID (DISCOVERY_ANY_ID),
+  system(OosVimba::System::getInstance()),
+  deviceID(OosVimba::DISCOVERY_ANY_ID),
   width(0), height(0),
   xOffset(0), yOffset(0),
   framerate(0),
@@ -89,8 +89,8 @@ void ofxVimbaGrabber::close() {
 
 void ofxVimbaGrabber::startDiscovery() {
   if (!discovery) {
-    discovery = std::make_shared<Discovery>();
-    std::function<void(std::shared_ptr<ofxVimba::Device> device, const ofxVimba::DiscoveryTrigger)> callback = std::bind(&ofxVimbaGrabber::triggerCallback, this, std::placeholders::_1, std::placeholders::_2);
+    discovery = std::make_shared<OosVimba::Discovery>();
+    std::function<void(std::shared_ptr<OosVimba::Device> device, const OosVimba::DiscoveryTrigger)> callback = std::bind(&ofxVimbaGrabber::triggerCallback, this, std::placeholders::_1, std::placeholders::_2);
     discovery->setTriggerCallback(callback);
   }
   discovery->requestID(deviceID);
@@ -105,15 +105,15 @@ void ofxVimbaGrabber::stopDiscovery() {
 }
 
 
-void ofxVimbaGrabber::triggerCallback(std::shared_ptr<ofxVimba::Device> device, const ofxVimba::DiscoveryTrigger trigger) {
+void ofxVimbaGrabber::triggerCallback(std::shared_ptr<OosVimba::Device> device, const OosVimba::DiscoveryTrigger trigger) {
   switch (trigger) {
-    case ofxVimba::OOS_DISCOVERY_PLUGGED_IN:
+    case OosVimba::OOS_DISCOVERY_PLUGGED_IN:
       onDiscoveryFound(device);
       break;
-    case ofxVimba::OOS_DISCOVERY_PLUGGED_OUT:
+    case OosVimba::OOS_DISCOVERY_PLUGGED_OUT:
       onDiscoveryLost(device);
       break;
-    case ofxVimba::OOS_DISCOVERY_STATE_CHANGED:
+    case OosVimba::OOS_DISCOVERY_STATE_CHANGED:
       onDiscoveryUpdate(device);
       break;
     default:
@@ -121,7 +121,7 @@ void ofxVimbaGrabber::triggerCallback(std::shared_ptr<ofxVimba::Device> device, 
   }
 }
 
-void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<Device> &device) {
+void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<OosVimba::Device> &device) {
   std::lock_guard<std::mutex> lock(deviceMutex);
 
   if (activeDevice && SP_ISEQUAL(activeDevice->getHandle(), device->getHandle())) {
@@ -134,36 +134,36 @@ void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<Device> &device) {
   discoveredDevice = device;
 }
 
-void ofxVimbaGrabber::onDiscoveryUpdate(std::shared_ptr<Device> &device) {
+void ofxVimbaGrabber::onDiscoveryUpdate(std::shared_ptr<OosVimba::Device> &device) {
   std::lock_guard<std::mutex> lock(deviceMutex);
   if (activeDevice) {
     if (SP_ISEQUAL(activeDevice->getHandle(), device->getHandle()) &&
         !device->isAvailable()) {
       // Our access mode dropped, schedule a disconnect
-      discoveredDevice = std::make_shared<Device>(AVT::VmbAPI::CameraPtr());
+      discoveredDevice = std::make_shared<OosVimba::Device>(AVT::VmbAPI::CameraPtr());
     }
   } else if (filterDevice(device)) {
     discoveredDevice = device;
   }
 }
 
-void ofxVimbaGrabber::onDiscoveryLost(std::shared_ptr<Device> &device) {
+void ofxVimbaGrabber::onDiscoveryLost(std::shared_ptr<OosVimba::Device> &device) {
   std::lock_guard<std::mutex> lock(deviceMutex);
   if (!activeDevice || !SP_ISEQUAL(activeDevice->getHandle(), device->getHandle()))
     return;
-  discoveredDevice = std::make_shared<Device>(AVT::VmbAPI::CameraPtr());
+  discoveredDevice = std::make_shared<OosVimba::Device>(AVT::VmbAPI::CameraPtr());
 }
 
 // -- DEVICE -------------------------------------------------------------------
 
-bool ofxVimbaGrabber::filterDevice(std::shared_ptr<Device> &device) {
+bool ofxVimbaGrabber::filterDevice(std::shared_ptr<OosVimba::Device> &device) {
   if (!device || SP_ISNULL(device->getHandle())) return false;
 
-  if (deviceID != DISCOVERY_ANY_ID && deviceID != device->getId()) {
+  if (deviceID != OosVimba::DISCOVERY_ANY_ID && deviceID != device->getId()) {
     return false;
   }
 
-  AccessMode requestedAccesMode = bReadOnly ? AccessModeRead : AccessModeMaster;
+  OosVimba::AccessMode requestedAccesMode = bReadOnly ? OosVimba::AccessModeRead : OosVimba::AccessModeMaster;
 
   if (device->getAvailableAccessMode() < requestedAccesMode) {
     ofLogWarning("ofxVimbaGrabber::openDevice") << device->getId() << " acces mode " << requestedAccesMode <<
@@ -174,13 +174,13 @@ bool ofxVimbaGrabber::filterDevice(std::shared_ptr<Device> &device) {
   return true;
 }
 
-void ofxVimbaGrabber::openDevice(std::shared_ptr<Device> &device) {
+void ofxVimbaGrabber::openDevice(std::shared_ptr<OosVimba::Device> &device) {
   std::lock_guard<std::mutex> lock(deviceMutex);
 
   // We need to be disconnected, and have a next device
   if (activeDevice || !device || SP_ISNULL(device->getHandle())) return;
-  if (deviceID != DISCOVERY_ANY_ID && deviceID != device->getId()) return;
-  AccessMode requestedAccesMode = bReadOnly ? AccessModeRead : AccessModeMaster;
+  if (deviceID != OosVimba::DISCOVERY_ANY_ID && deviceID != device->getId()) return;
+  OosVimba::AccessMode requestedAccesMode = bReadOnly ? OosVimba::AccessModeRead : OosVimba::AccessModeMaster;
 
   if (!isAccessModeAvailable(requestedAccesMode, device->getAvailableAccessMode())) {
     ofLogWarning("ofxVimbaGrabber::openDevice") << device->getId() << " acces mode " << requestedAccesMode <<
@@ -197,7 +197,7 @@ void ofxVimbaGrabber::openDevice(std::shared_ptr<Device> &device) {
   activeDevice = device;
 
   // retain the current id
-  if (deviceID == DISCOVERY_ANY_ID) deviceID = activeDevice->getId();
+  if (deviceID == OosVimba::DISCOVERY_ANY_ID) deviceID = activeDevice->getId();
   logger.setScope(activeDevice->getId());
 
   if(!bReadOnly) configureDevice(activeDevice);
@@ -224,7 +224,7 @@ void ofxVimbaGrabber::closeDevice() {
   }
 }
 
-void ofxVimbaGrabber::configureDevice(std::shared_ptr<ofxVimba::Device> &device) {
+void ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> &device) {
 
   activeDevice->run("GVSPAdjustPacketSize");
   VmbInt64_t GVSPPacketSize;
@@ -262,14 +262,14 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<ofxVimba::Device> &device)
 //    std::cout << i << '\n';
 //}
 
-//void frameCallBack(const std::shared_ptr<ofxVimba::Frame> frame) { };
+//void frameCallBack(const std::shared_ptr<OosVimba::Frame> frame) { };
 
 bool ofxVimbaGrabber::startStream() {
   if (stream) return true;
 
   if (activeDevice) {
-    stream = std::make_shared<Stream>(activeDevice);
-    std::function<void(const std::shared_ptr<ofxVimba::Frame>)> callback = std::bind(&ofxVimbaGrabber::frameCallBack, this, std::placeholders::_1);
+    stream = std::make_shared<OosVimba::Stream>(activeDevice);
+    std::function<void(const std::shared_ptr<OosVimba::Frame>)> callback = std::bind(&ofxVimbaGrabber::frameCallBack, this, std::placeholders::_1);
     stream->setFrameCallback(callback);
 //    ofAddListener(stream->onFrame, this, &ofxVimbaGrabber::onFrame);
 
@@ -290,7 +290,7 @@ void ofxVimbaGrabber::stopStream() {
 }
 
 
-void ofxVimbaGrabber::frameCallBack(const std::shared_ptr<ofxVimba::Frame> frame) {
+void ofxVimbaGrabber::frameCallBack(const std::shared_ptr<OosVimba::Frame> frame) {
   auto newPixels = std::make_shared<ofPixels>();
 
   // setFromPixels copies the pixel data, as the data from the frame should not be used outside of this scope;
@@ -421,7 +421,7 @@ void ofxVimbaGrabber::listCameras(bool _verbose) {
   ofDevices.clear();
 
   for (auto cam : cameras) {
-    auto device = std::make_shared<Device>(cam);
+    auto device = std::make_shared<OosVimba::Device>(cam);
     ofVideoDevice ofDevice;
     // convert to int to make compatable with ofVideoDevice
     ofDevice.id = hexIdToIntId(device->getId());
@@ -429,7 +429,7 @@ void ofxVimbaGrabber::listCameras(bool _verbose) {
     ofDevice.hardwareName = "Allied Vision";
     ofDevice.serialID = device->getSerial();
     ofDevice.bAvailable =
-        (device->getAvailableAccessMode() == AccessModeMaster);
+        (device->getAvailableAccessMode() == OosVimba::AccessModeMaster);
     ofDevices.push_back(ofDevice);
   }
 

@@ -1,26 +1,26 @@
 #include "OosVim/Common.h"
 
-using namespace ofxVimba;
+using namespace OosVimba;
 
-bool ofxVimba::isAccessModeAvailable(const AccessMode &requested,
+bool OosVimba::isAccessModeAvailable(const AccessMode &requested,
                                      const VmbAccessModeType &available) {
   auto mode = translateAccessMode(available);
   return isAccessModeAvailable(requested, mode);
 };
 
-bool ofxVimba::isAccessModeAvailable(const AccessMode &requested,
+bool OosVimba::isAccessModeAvailable(const AccessMode &requested,
                                      const AccessMode &available) {
   return available >= requested;
 };
 
-AccessMode ofxVimba::translateAccessMode(const VmbAccessModeType &modes) {
+AccessMode OosVimba::translateAccessMode(const VmbAccessModeType &modes) {
   if (modes & VmbAccessModeFull) return AccessModeMaster;
   if (modes & VmbAccessModeRead) return AccessModeRead;
 
   return AccessModeNone;
 };
 
-VmbAccessModeType ofxVimba::translateAccessMode(const AccessMode &mode) {
+VmbAccessModeType OosVimba::translateAccessMode(const AccessMode &mode) {
   if (mode == AccessModeMaster) return VmbAccessModeFull;
   if (mode == AccessModeRead) return VmbAccessModeRead;
 
@@ -28,7 +28,7 @@ VmbAccessModeType ofxVimba::translateAccessMode(const AccessMode &mode) {
 }
 
 template <>
-bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value) {
+bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value) {
   long long tmp;
 
   if (getFeature(feature, tmp)) {
@@ -41,7 +41,7 @@ bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value) {
 
 #ifndef _MSC_VER
 template <>
-bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
+bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
                           int64_t &value) {
     long long tmp;
 
@@ -55,7 +55,7 @@ bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
 #endif
 
 template <>
-bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
+bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
                           uint64_t &value) {
   long long tmp;
 
@@ -68,7 +68,7 @@ bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
 }
 
 template <>
-bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
+bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
                           float &value) {
   double tmp;
 
@@ -81,33 +81,33 @@ bool ofxVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature,
 }
 
 template <>
-bool ofxVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
+bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
                           const int &value) {
   return setFeature(feature, static_cast<long long>(value));
 }
 
 #ifndef _MSC_VER
 template <>
-bool ofxVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
+bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
                           const int64_t &value) {
   return setFeature(feature, static_cast<long long>(value));
 }
 #endif
 
 template <>
-bool ofxVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
+bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
                           const uint64_t &value) {
   return setFeature(feature, static_cast<long long>(value));
 }
 
 template <>
-bool ofxVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
+bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
                           const float &value) {
   return setFeature(feature, static_cast<double>(value));
 }
 
 template <>
-bool ofxVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
+bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature,
                           const std::string &value) {
   return setFeature(feature, value.c_str());
 }

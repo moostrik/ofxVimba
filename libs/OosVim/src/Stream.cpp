@@ -1,6 +1,6 @@
 #include "OosVim/Stream.h"
 
-using namespace ofxVimba;
+using namespace OosVimba;
 
 Stream::Stream(const std::shared_ptr<Device> device,
                const unsigned int bufferSize)

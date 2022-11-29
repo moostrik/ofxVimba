@@ -8,7 +8,7 @@
 
 #include "Logger.h"
 
-namespace ofxVimba {
+namespace OosVimba {
 
 struct Version {
   bool valid = false;
@@ -57,4 +57,4 @@ class System {
   Logger logger;
   Version version;
 };
-}  // namespace ofxVimba
+}  // namespace OosVimba

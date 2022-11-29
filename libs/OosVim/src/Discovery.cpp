@@ -70,15 +70,18 @@ void Discovery::Observer::process(AVT::VmbAPI::CameraPtr camera,
   if (reqID != DISCOVERY_ANY_ID && device->getId() != reqID) return;
 
   // Publish the event
+  if (discovery.triggerCallbackFuction)
   switch (reason) {
-    case AVT::VmbAPI::UpdateTriggerPluggedOut:
-      ofNotifyEvent(discovery.onLost, device, &discovery);
-      break;
     case AVT::VmbAPI::UpdateTriggerPluggedIn:
-      ofNotifyEvent(discovery.onFound, device, &discovery);
+      discovery.triggerCallbackFuction(device, OOS_DISCOVERY_PLUGGED_IN);
+      break;
+    case AVT::VmbAPI::UpdateTriggerPluggedOut:
+      discovery.triggerCallbackFuction(device, OOS_DISCOVERY_PLUGGED_OUT);
+      break;
+    case AVT::VmbAPI::UpdateTriggerOpenStateChanged:
+      discovery.triggerCallbackFuction(device, OOS_DISCOVERY_STATE_CHANGED);
       break;
     default:
-      ofNotifyEvent(discovery.onUpdate, device, &discovery);
       break;
   }
 };

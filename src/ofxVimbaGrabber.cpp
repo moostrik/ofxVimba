@@ -90,14 +90,8 @@ void ofxVimbaGrabber::close() {
 void ofxVimbaGrabber::startDiscovery() {
   if (!discovery) {
     discovery = std::make_shared<Discovery>();
-
-    // Whenever a device is found or updated try to connect
-    ofAddListener(discovery->onFound, this, &ofxVimbaGrabber::onDiscoveryFound);
-    ofAddListener(discovery->onUpdate, this,
-                  &ofxVimbaGrabber::onDiscoveryUpdate);
-
-    // Whenever a device is lost disconnect
-    ofAddListener(discovery->onLost, this, &ofxVimbaGrabber::onDiscoveryLost);
+    std::function<void(std::shared_ptr<ofxVimba::Device> device, const ofxVimba::DiscoveryTrigger)> callback = std::bind(&ofxVimbaGrabber::triggerCallback, this, std::placeholders::_1, std::placeholders::_2);
+    discovery->setTriggerCallback(callback);
   }
   discovery->requestID(deviceID);
   discovery->start();
@@ -105,14 +99,25 @@ void ofxVimbaGrabber::startDiscovery() {
 
 void ofxVimbaGrabber::stopDiscovery() {
   if (discovery) {
-    ofRemoveListener(discovery->onFound, this,
-                     &ofxVimbaGrabber::onDiscoveryFound);
-    ofRemoveListener(discovery->onUpdate, this,
-                     &ofxVimbaGrabber::onDiscoveryUpdate);
-    ofRemoveListener(discovery->onLost, this,
-                     &ofxVimbaGrabber::onDiscoveryLost);
-
+    discovery->setTriggerCallback();
     discovery = nullptr;
+  }
+}
+
+
+void ofxVimbaGrabber::triggerCallback(std::shared_ptr<ofxVimba::Device> device, const ofxVimba::DiscoveryTrigger trigger) {
+  switch (trigger) {
+    case ofxVimba::OOS_DISCOVERY_PLUGGED_IN:
+      onDiscoveryFound(device);
+      break;
+    case ofxVimba::OOS_DISCOVERY_PLUGGED_OUT:
+      onDiscoveryLost(device);
+      break;
+    case ofxVimba::OOS_DISCOVERY_STATE_CHANGED:
+      onDiscoveryUpdate(device);
+      break;
+    default:
+      break;
   }
 }
 
@@ -252,13 +257,21 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<ofxVimba::Device> &device)
 }
 
 // -- STREAM -------------------------------------------------------------------
+//void print_num(int i)
+//{
+//    std::cout << i << '\n';
+//}
+
+//void frameCallBack(const std::shared_ptr<ofxVimba::Frame> frame) { };
 
 bool ofxVimbaGrabber::startStream() {
   if (stream) return true;
 
   if (activeDevice) {
     stream = std::make_shared<Stream>(activeDevice);
-    ofAddListener(stream->onFrame, this, &ofxVimbaGrabber::onFrame);
+    std::function<void(const std::shared_ptr<ofxVimba::Frame>)> callback = std::bind(&ofxVimbaGrabber::frameCallBack, this, std::placeholders::_1);
+    stream->setFrameCallback(callback);
+//    ofAddListener(stream->onFrame, this, &ofxVimbaGrabber::onFrame);
 
     stream->start();
     return true;
@@ -268,14 +281,16 @@ bool ofxVimbaGrabber::startStream() {
 
 void ofxVimbaGrabber::stopStream() {
   if (stream) {
-    ofRemoveListener(stream->onFrame, this, &ofxVimbaGrabber::onFrame);
+    stream->setFrameCallback();
+//    ofRemoveListener(stream->onFrame, this, &ofxVimbaGrabber::onFrame);
 
     stream->stop();
     stream = nullptr;
   }
 }
 
-void ofxVimbaGrabber::onFrame(const std::shared_ptr<ofxVimba::Frame> &frame) {
+
+void ofxVimbaGrabber::frameCallBack(const std::shared_ptr<ofxVimba::Frame> frame) {
   auto newPixels = std::make_shared<ofPixels>();
 
   // setFromPixels copies the pixel data, as the data from the frame should not be used outside of this scope;

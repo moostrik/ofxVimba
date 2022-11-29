@@ -8,7 +8,6 @@
 #include <functional>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
-#include "ofMain.h"
 
 #include "Device.h"
 #include "Frame.h"
@@ -38,7 +37,12 @@ class Stream {
   void start();
   void stop();
 
-  ofEvent<const std::shared_ptr<Frame>> onFrame;
+  // Callback
+  std::function<void(const std::shared_ptr<Frame>)> frameCallbackFunction;
+  void setFrameCallback(std::function<void(const std::shared_ptr<Frame>)> value) { frameCallbackFunction = value; }
+  void setFrameCallback() { frameCallbackFunction = std::function<void(const std::shared_ptr<Frame>)>(); }
+
+//  ofEvent<const std::shared_ptr<Frame>> onFrame;
 
  protected:
   void run();

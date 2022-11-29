@@ -66,9 +66,12 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   void update() override;
   void close() override;
 
+
  private:
   void startDiscovery();
   void stopDiscovery();
+
+  void triggerCallback(std::shared_ptr<ofxVimba::Device> device, const ofxVimba::DiscoveryTrigger trigger);
   void onDiscoveryFound(std::shared_ptr<ofxVimba::Device> &device);
   void onDiscoveryUpdate(std::shared_ptr<ofxVimba::Device> &device);
   void onDiscoveryLost(std::shared_ptr<ofxVimba::Device> &device);
@@ -82,6 +85,8 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   void stopStream();
 
   std::mutex frameMutex;
+  void frameCallBack(const std::shared_ptr<ofxVimba::Frame> frame);
+
   void onFrame(const std::shared_ptr<ofxVimba::Frame> &frame);
 
   std::shared_ptr<ofxVimba::System> system;

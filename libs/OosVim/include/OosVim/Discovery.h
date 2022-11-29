@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include <string>
+#include <functional>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
 
@@ -9,10 +10,14 @@
 #include "Logger.h"
 #include "System.h"
 
-#include "ofMain.h"
-
 namespace ofxVimba {
 static const std::string DISCOVERY_ANY_ID = "";
+
+enum DiscoveryTrigger {
+  OOS_DISCOVERY_PLUGGED_IN = 0,
+  OOS_DISCOVERY_PLUGGED_OUT = 1,
+  OOS_DISCOVERY_STATE_CHANGED = 3,
+};
 
 class Discovery {
  public:
@@ -33,10 +38,11 @@ class Discovery {
   bool isStarted() const { return !isStopped(); }
   bool isStopped() const { return SP_ISNULL(observer); }
 
-  // Events
-  ofEvent<std::shared_ptr<Device>> onFound;
-  ofEvent<std::shared_ptr<Device>> onLost;
-  ofEvent<std::shared_ptr<Device>> onUpdate;
+
+  // Callback
+  std::function<void(std::shared_ptr<Device> device, const DiscoveryTrigger)> triggerCallbackFuction;
+  void setTriggerCallback(std::function<void(std::shared_ptr<Device> device, const DiscoveryTrigger)> value) { triggerCallbackFuction = value; }
+  void setTriggerCallback() { triggerCallbackFuction = std::function<void(std::shared_ptr<Device> device, const DiscoveryTrigger)>(); }
 
  private:
   std::string reqID = DISCOVERY_ANY_ID;

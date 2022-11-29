@@ -149,7 +149,8 @@ bool Stream::receive(AVT::VmbAPI::FramePtr framePtr) {
     frameAt = getElapsedTime();
 
     // Notify of new frame
-    ofNotifyEvent(onFrame, frame, this);
+    if (frameCallbackFunction) frameCallbackFunction(frame);
+//    ofNotifyEvent(onFrame, frame, this);
     return true;
   } else {
     logger.error("Failed to extract frame data");

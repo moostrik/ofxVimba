@@ -66,14 +66,12 @@ class Device {
   }
 
   template <typename ValueType>
-  bool getOptions(const AVT::VmbAPI::FeaturePtr&,
-                  std::vector<ValueType>&) const {
+  bool getOptions(const AVT::VmbAPI::FeaturePtr&, std::vector<ValueType>&) const {
     return false;
   }
 
   template <typename ValueType>
-  bool isOptionAvailable(const AVT::VmbAPI::FeaturePtr&,
-                         const ValueType&) const {
+  bool isOptionAvailable(const AVT::VmbAPI::FeaturePtr&, const ValueType&) const {
     return false;
   }
 
@@ -142,27 +140,21 @@ class Device {
 };
 
 template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int& min,
-                      int& max) const;
+bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int& min, int& max) const;
 
 template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int64_t& min,
-                      int64_t& max) const;
+bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int64_t& min, int64_t& max) const;
 
 template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, double& min,
-                      double& max) const;
+bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, double& min, double& max) const;
 
 template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, float& min,
-                      float& max) const;
+bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, float& min, float& max) const;
 
 template <>
-bool Device::getOptions(const AVT::VmbAPI::FeaturePtr& feature,
-                        std::vector<std::string>& options) const;
+bool Device::getOptions(const AVT::VmbAPI::FeaturePtr& feature, std::vector<std::string>& options) const;
 
 template <>
-bool Device::isOptionAvailable(const AVT::VmbAPI::FeaturePtr& feature,
-                               const std::string& option) const;
+bool Device::isOptionAvailable(const AVT::VmbAPI::FeaturePtr& feature, const std::string& option) const;
 
 }  // namespace OosVimba

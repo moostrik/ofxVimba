@@ -24,8 +24,8 @@ void Logger::log(vmbLogLevel level, const std::string& module,
   if (error != VmbErrorSuccess)
     out << " (error=\"" << std::string(messageFor(error)) << "\")";
 
-  if (level >= currentLogLevel);
-  std::cout << out.str() << std::endl;
+  if (level >= currentLogLevel)
+    std::cout << out.str() << std::endl;
 }
 
 const char* Logger::messageFor(const VmbErrorType& error) {

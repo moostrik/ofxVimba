@@ -257,12 +257,6 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> &device)
 }
 
 // -- STREAM -------------------------------------------------------------------
-//void print_num(int i)
-//{
-//    std::cout << i << '\n';
-//}
-
-//void frameCallBack(const std::shared_ptr<OosVimba::Frame> frame) { };
 
 bool ofxVimbaGrabber::startStream() {
   if (stream) return true;
@@ -288,7 +282,6 @@ void ofxVimbaGrabber::stopStream() {
     stream = nullptr;
   }
 }
-
 
 void ofxVimbaGrabber::frameCallBack(const std::shared_ptr<OosVimba::Frame> frame) {
   auto newPixels = std::make_shared<ofPixels>();

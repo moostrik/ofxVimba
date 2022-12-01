@@ -74,8 +74,22 @@ bool Device::locate(const std::string& name, AVT::VmbAPI::FeaturePtr& feature) {
 }
 
 template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int& min,
-                      int& max) const {
+bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int& min, int& max) const {
+  VmbInt64_t lower, upper;
+  auto error = feature->GetRange(lower, upper);
+  if (error != VmbErrorSuccess) {
+    // logger.warning("Failed to retrieve value range", error);
+    return false;
+  }
+
+  min = (int)lower;
+  max = (int)upper;
+
+  return true;
+}
+
+template <>
+bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int64_t& min,  int64_t& max) const {
   VmbInt64_t lower, upper;
   auto error = feature->GetRange(lower, upper);
   if (error != VmbErrorSuccess) {
@@ -90,30 +104,12 @@ bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int& min,
 }
 
 template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int64_t& min,
-                      int64_t& max) const {
-  VmbInt64_t lower, upper;
-  auto error = feature->GetRange(lower, upper);
-  if (error != VmbErrorSuccess) {
-    // logger.warning("Failed to retrieve value range", error);
-    return false;
-  }
-
-  min = lower;
-  max = upper;
-
-  return true;
-}
-
-template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, double& min,
-                      double& max) const {
+bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, double& min,  double& max) const {
   return feature->GetRange(min, max) == VmbErrorSuccess;
 }
 
 template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, float& min,
-                      float& max) const {
+bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, float& min, float& max) const {
   double lower, upper;
   auto error = feature->GetRange(lower, upper);
   if (error != VmbErrorSuccess) {
@@ -121,15 +117,14 @@ bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, float& min,
     return false;
   }
 
-  min = lower;
-  max = upper;
+  min = (float)lower;
+  max = (float)upper;
 
   return true;
 }
 
 template <>
-bool Device::getOptions(const AVT::VmbAPI::FeaturePtr& feature,
-                        std::vector<std::string>& options) const {
+bool Device::getOptions(const AVT::VmbAPI::FeaturePtr& feature, std::vector<std::string>& options) const {
   auto error = feature->GetValues(options);
 
   if (error != VmbErrorSuccess) {
@@ -141,8 +136,7 @@ bool Device::getOptions(const AVT::VmbAPI::FeaturePtr& feature,
 }
 
 template <>
-bool Device::isOptionAvailable(const AVT::VmbAPI::FeaturePtr& feature,
-                               const std::string& option) const {
+bool Device::isOptionAvailable(const AVT::VmbAPI::FeaturePtr& feature, const std::string& option) const {
   bool isAvailable = false;
   auto error = feature->IsValueAvailable(option.c_str(), isAvailable);
 

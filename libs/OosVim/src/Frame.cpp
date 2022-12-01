@@ -2,13 +2,13 @@
 
 using namespace OosVimba;
 
-Frame::Frame(std::shared_ptr<Device>& device) :
-  device(device),
+Frame::Frame(std::shared_ptr<Device>&_device) :
+  device(_device),
   id(0),
   timestamp(0), frameCount(0),
   width(0), height(0),
   size(0)
-{};
+{ };
 
 Frame::~Frame() {
   if (!SP_ISNULL(ancilleryData)) ancilleryData->Close();
@@ -82,7 +82,6 @@ bool Frame::load(const AVT::VmbAPI::FramePtr& framePtr) {
   uint64_t fc;
   if (getAncillary("ChunkAcquisitionFrameCount", fc)) frameCount = fc;
   else frameCount++;
-
   return true;
 }
 

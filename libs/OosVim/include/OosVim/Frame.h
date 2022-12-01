@@ -11,11 +11,12 @@ class Frame {
   friend Stream;
 
  public:
-  Frame(std::shared_ptr<Device>& device);
+  Frame(std::shared_ptr<Device>& _device);
   ~Frame();
 
   const uint64_t& getId() const { return id; }
   const uint64_t& getTimestamp() const { return timestamp; }
+  const uint64_t& geFrameCount() const { return frameCount; }
   const uint32_t& getWidth() const { return width; }
   const uint32_t& getHeight() const { return height; }
   const uint32_t& getImageSize() const { return size; }

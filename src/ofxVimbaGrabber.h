@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "ofxVimba.h"
+#include "OosVim/OosVimba.h"
 #include "ofxVimbaUtils.h"
 
 #define VIMBA_DEV_MODE

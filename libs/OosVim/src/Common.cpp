@@ -23,6 +23,7 @@ VmbAccessModeType OosVimba::translateAccessMode(const AccessMode &mode) {
   return VmbAccessModeNone;
 }
 
+
 template <>
 bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long long &value) {
   if (SP_ISNULL(feature)) return false;
@@ -33,7 +34,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long long &val
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int64_t &value) {
+bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, signed long &value) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t tmp;
   if (!(feature->GetValue(tmp) == VmbErrorSuccess)) return false;
@@ -42,7 +43,16 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int64_t &value
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, uint64_t &value) {
+bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr& feature, unsigned long long& value) {
+  if (SP_ISNULL(feature)) return false;
+  VmbInt64_t tmp;
+  if (!(feature->GetValue(tmp) == VmbErrorSuccess)) return false;
+  value = static_cast<uint64_t>(tmp);
+  return true;
+}
+
+template <>
+bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr& feature, unsigned long& value) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t tmp;
   if (!(feature->GetValue(tmp) == VmbErrorSuccess)) return false;

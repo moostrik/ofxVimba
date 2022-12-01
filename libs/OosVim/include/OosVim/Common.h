@@ -31,10 +31,13 @@ template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, long long &value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, int64_t &value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, signed long&value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, uint64_t &value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr& feature, unsigned long long& value);
+
+template <>
+bool getFeature(const AVT::VmbAPI::FeaturePtr& feature, signed long& value);
 
 template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr& feature, int& value);

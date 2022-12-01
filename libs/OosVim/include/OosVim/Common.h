@@ -28,6 +28,9 @@ bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, ValueType &value) {
 }
 
 template <>
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, long long &value);
+
+template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, int64_t &value);
 
 template <>

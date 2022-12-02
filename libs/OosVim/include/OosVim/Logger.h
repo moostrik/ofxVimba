@@ -28,7 +28,8 @@ enum vmbLogLevel : short {
   VMB_LOG_NOTICE,
   VMB_LOG_WARNING,
   VMB_LOG_ERROR,
-  VMB_LOG_FATAL_ERROR
+  VMB_LOG_FATAL_ERROR,
+  VMB_LOG_NONE
 };
 
 static vmbLogLevel currentLogLevel = VMB_LOG_NOTICE;

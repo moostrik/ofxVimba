@@ -14,8 +14,11 @@
 #include "Logger.h"
 
 namespace OosVimba {
+static const uint64_t CAMERA_NO_TIMEOUT = 0;
+static const uint64_t CAMERA_HEALTH_TIMEOUT = 100;
 static const uint64_t CAMERA_STALLED_TIMEOUT = 1500;
 static const uint64_t CAMERA_INITIALIZE_TIMEOUT = 1000;
+static const uint64_t CAMERA_WAIT_TIMEOUT = 1000;
 
 class StreamObserver;
 class Stream {

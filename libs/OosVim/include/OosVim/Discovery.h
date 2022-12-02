@@ -73,10 +73,7 @@ class Discovery {
     void process(AVT::VmbAPI::CameraPtr camera, AVT::VmbAPI::UpdateTriggerType reason);
   };
 
-  // Create a logger for discovery
   Logger logger;
-
-  // Keep an instance of the system around while discovery exists
   std::shared_ptr<System> system;
 
   // Observe for a next camera to connect to

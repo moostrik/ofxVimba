@@ -66,34 +66,34 @@ void Stream::stop() {
 
 void Stream::run() {
   std::unique_lock<std::mutex> lock(mutex);
-  std::chrono::milliseconds timeout(100);
+  std::chrono::milliseconds timeout(CAMERA_HEALTH_TIMEOUT);
 
   logger.verbose("Setting up stream");
 
   while (isRunning()) {
     if (isCapturing()) {
-      // If the connection is stalled, reconnect in the next loop
       if (isResized()) {
-        logger.verbose("Detected resized stream, restarting stream");
-        timeout = std::chrono::milliseconds(0);
+        logger.notice("Detected resized stream, restarting stream");
+        timeout = std::chrono::milliseconds(CAMERA_NO_TIMEOUT);
 
         close();
       }
-//      else if (isStalled()) {
-//        if (device->getCurrentAccessMode() == AccessModeMaster) {
-//          logger.warning("Detected stalled stream, restarting stream");
-//        }
-//        timeout = std::chrono::milliseconds(0);
+      else if (isStalled()) {
+        if (device->getCurrentAccessMode() == AccessModeMaster) {
+          logger.warning("Detected stalled stream, restarting stream");
+        } else
+          logger.verbose("Detected stalled stream, restarting stream");
+        timeout = std::chrono::milliseconds(CAMERA_NO_TIMEOUT);
 
-//        close();
-//      }
+        close();
+      }
     } else if (open()) {
       // Whenever we open a stream, monitor it's health ever 100ms
-      timeout = std::chrono::milliseconds(100);
+      timeout = std::chrono::milliseconds(CAMERA_HEALTH_TIMEOUT);
       connectedAt = getElapsedTime();
     } else {
       // Whenever we cannot open the device, retry in 5 seconds
-      timeout = std::chrono::milliseconds(5000);
+      timeout = std::chrono::milliseconds(CAMERA_WAIT_TIMEOUT);
     }
 
     // Wait for a timeout
@@ -117,7 +117,7 @@ bool Stream::open() {
   }
 
   if (prepare()) {
-    logger.verbose("Succesfully started capture");
+    logger.verbose("started capture");
 
     if (device->isMaster() && !device->run("AcquisitionStart")) {
       logger.warning("Failed to start acquisition");
@@ -177,8 +177,7 @@ bool Stream::prepare() {
     } else {
       if (error == VmbErrorInvalidAccess && !device->isMaster()) {
         logger.verbose(
-            "Cannot start capturing in read only mode without a running "
-            "acquisition",
+            "Cannot start capturing in read only mode without a running acquisition",
             error);
       } else {
         logger.error("Failed to start capturing", error);
@@ -198,7 +197,7 @@ bool Stream::teardown() {
   if (error == VmbErrorSuccess) {
     if (flush()) {
       if (deallocate()) {
-        logger.notice("Stopped capturing");
+        logger.verbose("Stopped capture");
       } else {
         logger.warning("Failed to deallocate frames");
       }
@@ -351,7 +350,7 @@ void StreamObserver::FeatureChanged(const AVT::VmbAPI::FeaturePtr&) {
   VmbInt64_t size = 0;
   if (stream.device->get("PayloadSize", size)) {
     if (!stream.isAllocated(size)) {
-      stream.logger.verbose("Stream payload size changed, scheduling resize");
+      stream.logger.notice("Stream payload size changed, scheduling resize");
       stream.resizedAt = stream.getElapsedTime();
     }
   }

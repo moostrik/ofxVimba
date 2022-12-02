@@ -2,7 +2,7 @@
 
 using namespace OosVimba;
 
-Discovery::Discovery() : logger("Discovery"), system(System::getInstance()){};
+Discovery::Discovery() : logger("Discovery "), system(System::getInstance()){};
 Discovery::~Discovery() { stop(); }
 
 bool Discovery::start() {

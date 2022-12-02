@@ -40,53 +40,6 @@ class Device {
   bool locate(const std::string& name, AVT::VmbAPI::FeaturePtr& feature);
 
   template <typename ValueType>
-  bool getRange(const AVT::VmbAPI::FeaturePtr&, ValueType&, ValueType&) const {
-    return false;
-  }
-
-  template <typename ValueType>
-  bool getRange(const std::string& name, ValueType& min, ValueType& max) const {
-    if (!isOpen()) {
-      logger.warning("Cannot read features from unopened device");
-      return false;
-    }
-
-    AVT::VmbAPI::FeaturePtr feature;
-    auto error = handle->GetFeatureByName(name.c_str(), feature);
-    if (error != VmbErrorSuccess) {
-      logger.warning("Failed to retrieve feature '" + name + "'", error);
-      return false;
-    }
-
-    if (getRange(feature, min, max))
-      return true;
-    else
-      logger.warning("wrong value type for feature " + name);
-    return false;
-  }
-
-  template <typename ValueType>
-  bool getOptions(const AVT::VmbAPI::FeaturePtr&, std::vector<ValueType>&) const {
-    return false;
-  }
-
-  template <typename ValueType>
-  bool isOptionAvailable(const AVT::VmbAPI::FeaturePtr&, const ValueType&) const {
-    return false;
-  }
-
-  // Access to features
-  template <typename ValueType>
-  bool get(const AVT::VmbAPI::FeaturePtr& feature, ValueType& value) const {
-    return getFeature(feature, value);
-  }
-
-  template <typename ValueType>
-  bool set(const AVT::VmbAPI::FeaturePtr& feature, const ValueType& value) {
-    return setFeature(feature, value);
-  }
-
-  template <typename ValueType>
   bool get(const std::string& name, ValueType& value) const {
     if (!isOpen()) {
       logger.warning("Cannot read features from unopened device");
@@ -100,10 +53,8 @@ class Device {
       return false;
     }
 
-    if (get(feature, value))
-      return true;
-    else
-      logger.warning("wrong value type for feature " + name);
+    if (getFeature(feature, value)) return true;
+    else logger.warning("Failed to get value for feature " + name);
     return false;
   }
 
@@ -121,7 +72,9 @@ class Device {
       return false;
     }
 
-    return set(feature, value);
+    if (setFeature(feature, value)) return true;
+    else logger.warning("Failed to set value for feature " + name);
+    return false;
   }
 
  private:
@@ -138,23 +91,4 @@ class Device {
 
   bool inspect();
 };
-
-template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int& min, int& max) const;
-
-template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, int64_t& min, int64_t& max) const;
-
-template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, double& min, double& max) const;
-
-template <>
-bool Device::getRange(const AVT::VmbAPI::FeaturePtr& feature, float& min, float& max) const;
-
-template <>
-bool Device::getOptions(const AVT::VmbAPI::FeaturePtr& feature, std::vector<std::string>& options) const;
-
-template <>
-bool Device::isOptionAvailable(const AVT::VmbAPI::FeaturePtr& feature, const std::string& option) const;
-
 }  // namespace OosVimba

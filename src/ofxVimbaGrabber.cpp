@@ -238,7 +238,7 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> &device)
   } else {
     device->set("TriggerSource", "FixedRate");
     device->set("AcquisitionMode", "Continuous");
-    device->set("ChunkModeActive", "1");
+    device->set("ChunkModeActive", true);
     device->set("PixelFormat", ofxVimbaUtils::getVimbaPixelFormat(pixelFormat));
   }
 

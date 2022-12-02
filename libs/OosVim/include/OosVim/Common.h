@@ -1,10 +1,9 @@
 #pragma once
 
 #include <memory>
-
+#include <string>
+#include <sstream>
 #include "VimbaCPP/Include/VimbaCPP.h"
-
-#include "Logger.h"
 
 namespace OosVimba {
 
@@ -21,37 +20,47 @@ bool isAccessModeAvailable(const AccessMode &requested, const VmbAccessModeType 
 AccessMode translateAccessMode(const VmbAccessModeType &modes);
 VmbAccessModeType translateAccessMode(const AccessMode &mode);
 
-// Get features
+// Get Features
 template <typename ValueType>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, ValueType &value) {
+  std::cout << "OosVimba getFeature: Valuetype not recognized" << std::endl;
   return false;
+//  if (SP_ISNULL(feature)) return false;
+//  ValueType tmp;
+//  if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
+//  value = (tmp);
+//  return true;
 }
 
 template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, long long &value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, signed long&value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned long long &value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr& feature, unsigned long long& value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, long &value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr& feature, signed long& value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, signed long &value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr& feature, int& value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr& feature, double& value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr& feature, float& value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, double &value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr& feature, std::string& value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, float &value);
 
-// Set features
+template <>
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, std::string &value);
+
+
+// Set Features
 template <typename ValueType>
 bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const ValueType &value) {
   if (SP_ISNULL(feature)) return false;
@@ -59,21 +68,75 @@ bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const ValueType &value) 
 }
 
 template <>
-bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const int64_t &value);
+bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const long long &value);
 
 template <>
-bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const uint64_t &value);
+bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const unsigned long long &value);
 
 template <>
-bool setFeature(const AVT::VmbAPI::FeaturePtr& feature, const int& value);
+bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const long &value);
 
 template <>
-bool setFeature(const AVT::VmbAPI::FeaturePtr& feature, const double& value);
+bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const unsigned long &value);
 
 template <>
-bool setFeature(const AVT::VmbAPI::FeaturePtr& feature, const float& value);
+bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const int &value);
+
+template <>
+bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const unsigned int &value);
+
+template <>
+bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const bool &value);
+
+template <>
+bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const double &value);
+
+template <>
+bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const float &value);
 
 template <>
 bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const std::string &value);
+
+
+// Get Feature Range
+template <typename ValueType>
+bool getRange(const AVT::VmbAPI::FeaturePtr &feature, ValueType &min, ValueType &max) {
+  return false;
+}
+
+template <>
+bool getRange(const AVT::VmbAPI::FeaturePtr &feature, long long &min, long long &max);
+
+template <>
+bool getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long long &min, unsigned long long &max);
+
+template <>
+bool getRange(const AVT::VmbAPI::FeaturePtr &feature, long &min, long &max);
+
+template <>
+bool getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &min, unsigned long &max);
+
+template <>
+bool getRange(const AVT::VmbAPI::FeaturePtr &feature, int &min, int &max);
+
+template <>
+bool getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &min, unsigned int &max);
+
+template <>
+bool getRange(const AVT::VmbAPI::FeaturePtr &feature, double &min, double &max);
+
+template <>
+bool getRange(const AVT::VmbAPI::FeaturePtr &feature, float &min, float &max);
+
+// Options
+template <typename ValueType>
+bool getOptions(const AVT::VmbAPI::FeaturePtr &feature, std::vector<ValueType> &options) {
+  return false;
+}
+
+template <typename ValueType>
+bool isOptionAvailable(const AVT::VmbAPI::FeaturePtr &feature, const ValueType &option) {
+  return false;
+}
 
 }  // namespace OosVimba

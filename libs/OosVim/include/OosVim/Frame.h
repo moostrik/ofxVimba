@@ -29,12 +29,10 @@ class Frame {
   template <typename ValueType>
   bool getAncillary(const std::string& name, ValueType& value) const {
     if (SP_ISNULL(ancilleryData)) return false;
-
     AVT::VmbAPI::FeaturePtr feature;
     if (getAncillaryFeature(name, feature)) {
       return getAncillary(feature, value);
     }
-
     return false;
   }
 

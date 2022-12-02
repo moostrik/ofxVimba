@@ -14,18 +14,15 @@ Frame::~Frame() {
   if (!SP_ISNULL(ancilleryData)) ancilleryData->Close();
 }
 
-bool Frame::getAncillaryFeature(const std::string& name,
-                                AVT::VmbAPI::FeaturePtr& feature) const {
+bool Frame::getAncillaryFeature(const std::string& name, AVT::VmbAPI::FeaturePtr& feature) const {
   if (SP_ISNULL(ancilleryData)) return false;
-  return ancilleryData->GetFeatureByName(name.c_str(), feature) ==
-         VmbErrorSuccess;
+  return ancilleryData->GetFeatureByName(name.c_str(), feature) == VmbErrorSuccess;
 }
 
 bool Frame::load(const AVT::VmbAPI::FramePtr& framePtr) {
   auto error = framePtr->GetPixelFormat(format);
   if (error != VmbErrorSuccess) {
-    Logger::warning("Frame", "Failed to extract pixel format from frame",
-                    error);
+    Logger::warning("Frame", "Failed to extract pixel format from frame", error);
     return false;
   }
 

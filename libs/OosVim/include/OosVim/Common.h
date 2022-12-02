@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <string>
-#include <sstream>
+#include <iostream>
 #include "VimbaCPP/Include/VimbaCPP.h"
 
 namespace OosVimba {

@@ -87,8 +87,6 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   std::mutex frameMutex;
   void frameCallBack(const std::shared_ptr<OosVimba::Frame> frame);
 
-  void onFrame(const std::shared_ptr<OosVimba::Frame> &frame);
-
   std::shared_ptr<OosVimba::System> system;
   std::shared_ptr<OosVimba::Discovery> discovery;
   std::shared_ptr<OosVimba::Device> activeDevice;

@@ -51,6 +51,9 @@ template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &value);
 
 template <>
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, bool &value);
+
+template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, double &value);
 
 template <>

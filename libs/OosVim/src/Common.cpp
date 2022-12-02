@@ -79,6 +79,15 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &
 }
 
 template <>
+bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, bool &value) {
+  if (SP_ISNULL(feature)) return false;
+  bool tmp;
+  if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
+  value = tmp;
+  return true;
+}
+
+template <>
 bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, double &value) {
   if (SP_ISNULL(feature)) return false;
   double tmp;

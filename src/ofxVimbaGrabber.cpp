@@ -137,8 +137,7 @@ void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<OosVimba::Device> &device
 void ofxVimbaGrabber::onDiscoveryUpdate(std::shared_ptr<OosVimba::Device> &device) {
   std::lock_guard<std::mutex> lock(deviceMutex);
   if (activeDevice) {
-    if (SP_ISEQUAL(activeDevice->getHandle(), device->getHandle()) &&
-        !device->isAvailable()) {
+    if (SP_ISEQUAL(activeDevice->getHandle(), device->getHandle()) && !(bReadOnly || device->isAvailable())) {
       // Our access mode dropped, schedule a disconnect
       discoveredDevice = std::make_shared<OosVimba::Device>(AVT::VmbAPI::CameraPtr());
     }

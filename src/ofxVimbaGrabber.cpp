@@ -235,9 +235,8 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> &device)
   device->get("PixelFormat", vmbPixelFormat);
   pixelFormat = ofxVimbaUtils::getOfPixelFormat(vmbPixelFormat);
 
-  if (pixelFormat != desiredPixelFormat) {
-    logger.notice("pixel format set to " + ofToString(pixelFormat));
-  }
+  if (pixelFormat < 0) logger.warning("pixel format set to " + ofToString(pixelFormat));
+  else if (pixelFormat != desiredPixelFormat) logger.notice("pixel format set to " + ofToString(pixelFormat));
 
   setFrameRate(desiredFrameRate.load());
   logger.notice("Device Configured");
@@ -288,7 +287,7 @@ void ofxVimbaGrabber::streamFrameCallBack(const std::shared_ptr<OosVimba::Frame>
   auto newPixels = std::make_shared<ofPixels>();
   auto format = ofxVimbaUtils::getOfPixelFormat(frame->getImageFormat());
   if (format == OF_PIXELS_UNKNOWN) {
-    ofLogWarning("streamFrameCallBack()") << "Received unknown pixel format";
+    //ofLogWarning("streamFrameCallBack()") << "Received unknown pixel format";
     return;
   }
 

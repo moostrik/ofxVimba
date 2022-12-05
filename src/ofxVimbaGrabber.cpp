@@ -14,6 +14,7 @@ ofxVimbaGrabber::ofxVimbaGrabber() :
   bMulticast(false), 
   bReadOnly(false), 
   userSet(-1),
+  bInited(false),
   bNewFrame(false),
   bIsConnected(false),
   bResolutionChanged(false),
@@ -25,6 +26,8 @@ ofxVimbaGrabber::ofxVimbaGrabber() :
 bool ofxVimbaGrabber::setup(int _w, int _h) {
   startDiscovery();
   pixels = std::make_shared<ofPixels>();
+
+  bInited = true;
   return true;
 }
 

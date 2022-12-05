@@ -20,6 +20,12 @@ void ofApp::setup() {
   grabber.setDesiredFrameRate(30);        // or vimbaGrabber->setDesiredFrameRate(30);
   grabber.setup(ofGetWindowWidth(), ofGetWindowHeight(), true);
   //grabber.setVerbose(true);
+
+  // after setup this will not work
+  grabber.setPixelFormat(OF_PIXELS_GRAY);
+  // but this will
+  vimbaGrabber->setPixelFormat(OF_PIXELS_GRAY);
+
 }
 
 //--------------------------------------------------------------

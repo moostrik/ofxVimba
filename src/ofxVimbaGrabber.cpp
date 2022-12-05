@@ -30,44 +30,8 @@ bool ofxVimbaGrabber::setup(int _w, int _h) {
 
 void ofxVimbaGrabber::update() {
   bIsConnected = isConnected();
-  bNewFrame = false;
-  bResolutionChanged = false;
-  bPixelFormatChanged = false;
-
-  std::shared_ptr<ofPixels> newPixels = nullptr;
-  {
-    std::lock_guard<std::mutex> lock(frameMutex);
-    newPixels.swap(receivedPixels);
-  }
-
-  if (newPixels) {
-    auto w = int(newPixels->getWidth());
-    auto h = int(newPixels->getHeight());
-    auto f = newPixels->getPixelFormat();
-    bResolutionChanged = (width != w || height != h);
-    width = w;
-    height =h;
-    bPixelFormatChanged = (pixelFormat != f);
-    pixelFormat = f;
-    pixels.swap(newPixels);
-    bNewFrame = true;
-  }
-
-  std::unique_lock<std::mutex> lock(deviceMutex, std::try_to_lock);
-  if (lock.owns_lock() && discoveredDevice) {
-    auto next = discoveredDevice;
-    // Reset our queued device and release the lock again
-    discoveredDevice = nullptr;
-    lock.unlock();
-
-    if (activeDevice) {
-      closeDevice();
-      startDiscovery();
-    }
-
-    if (!activeDevice && !SP_ISNULL(next->getHandle())) openDevice(next);
-    listCameras(false);
-  }
+  updateFrame();
+  updateDiscovery();
 }
 
 void ofxVimbaGrabber::close() {
@@ -143,6 +107,27 @@ void ofxVimbaGrabber::onDiscoveryLost(std::shared_ptr<OosVimba::Device> &device)
   if (!activeDevice || !SP_ISEQUAL(activeDevice->getHandle(), device->getHandle())) return;
   discoveredDevice = std::make_shared<OosVimba::Device>(AVT::VmbAPI::CameraPtr());
   logger.notice("Discovery Update: Device lost ", device->getId());
+}
+
+void ofxVimbaGrabber::updateDiscovery() {
+  std::unique_lock<std::mutex> lock(deviceMutex, std::try_to_lock);
+  if (lock.owns_lock() && discoveredDevice) {
+    auto nextDevice = discoveredDevice;
+    // Reset our queued device and release the lock
+    discoveredDevice = nullptr;
+    lock.unlock();
+
+    if (activeDevice  ) {
+      closeDevice();
+      startDiscovery();
+    }
+
+    if (!activeDevice && !SP_ISNULL(nextDevice->getHandle())) {
+      openDevice(nextDevice);
+    }
+
+    listCameras(false);
+  }
 }
 
 // -- DEVICE -------------------------------------------------------------------
@@ -286,10 +271,7 @@ void ofxVimbaGrabber::stopStream() {
 void ofxVimbaGrabber::streamFrameCallBack(const std::shared_ptr<OosVimba::Frame> frame) {
   auto newPixels = std::make_shared<ofPixels>();
   auto format = ofxVimbaUtils::getOfPixelFormat(frame->getImageFormat());
-  if (format == OF_PIXELS_UNKNOWN) {
-    //ofLogWarning("streamFrameCallBack()") << "Received unknown pixel format";
-    return;
-  }
+  if (format == OF_PIXELS_UNKNOWN) return;
 
   // The data from the frame should NOT be used outside the scope of this function.
   // The setFromPixels method copies the pixel data.
@@ -297,6 +279,31 @@ void ofxVimbaGrabber::streamFrameCallBack(const std::shared_ptr<OosVimba::Frame>
   
   std::lock_guard<std::mutex> lock(frameMutex);
   receivedPixels.swap(newPixels);
+}
+
+void ofxVimbaGrabber::updateFrame() {
+  bNewFrame = false;
+  bResolutionChanged = false;
+  bPixelFormatChanged = false;
+
+  std::shared_ptr<ofPixels> newPixels = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(frameMutex);
+    newPixels.swap(receivedPixels);
+  }
+
+  if (newPixels) {
+    auto w = int(newPixels->getWidth());
+    auto h = int(newPixels->getHeight());
+    auto f = newPixels->getPixelFormat();
+    bResolutionChanged = (width != w || height != h);
+    width = w;
+    height = h;
+    bPixelFormatChanged = (pixelFormat != f);
+    pixelFormat = f;
+    pixels.swap(newPixels);
+    bNewFrame = true;
+  }
 }
 
 // -- SET ----------------------------------------------------------------------

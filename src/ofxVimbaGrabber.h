@@ -76,6 +76,7 @@ public:
   void onDiscoveryFound(std::shared_ptr<OosVimba::Device> &device);
   void onDiscoveryUpdate(std::shared_ptr<OosVimba::Device> &device);
   void onDiscoveryLost(std::shared_ptr<OosVimba::Device> &device);
+  void updateDiscovery();
 
   bool filterDevice(std::shared_ptr<OosVimba::Device> &device);
   void openDevice(std::shared_ptr<OosVimba::Device> &device);
@@ -88,6 +89,7 @@ public:
 
   std::mutex frameMutex;
   void streamFrameCallBack(const std::shared_ptr<OosVimba::Frame> frame);
+  void updateFrame();
 
   std::shared_ptr<OosVimba::System> system;
   std::shared_ptr<OosVimba::Discovery> discovery;

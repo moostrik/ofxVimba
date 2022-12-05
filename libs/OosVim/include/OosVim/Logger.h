@@ -32,8 +32,6 @@ enum vmbLogLevel : short {
   VMB_LOG_NONE
 };
 
-static vmbLogLevel currentLogLevel = VMB_LOG_NOTICE;
-
 static const std::string LOGGER_PREFIX_START = "[OosVimba";
 static const std::string LOGGER_PREFIX_SCOPE = "::";
 static const std::string LOGGER_PREFIX_END = "] ";
@@ -49,6 +47,7 @@ class Logger {
   void clearScope();
   void setScope();
   void setScope(const std::string &nextScope);
+  void setLevel(vmbLogLevel level);
 
   OFX_VMB_LOG_LEVEL(verbose,  VMB_LOG_VERBOSE)
   OFX_VMB_LOG_LEVEL(notice,   VMB_LOG_NOTICE)

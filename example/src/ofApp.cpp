@@ -9,17 +9,19 @@ void ofApp::setup() {
   devices = grabber.listDevices();
   if (devices.size() > 0) {
     grabber.setDeviceID(devices[toggleNextDevice].id);
-    grabber.setVerbose(true);
   }
 
   //vimbaGrabber->setPixelFormat(OF_PIXELS_GRAY);
   vimbaGrabber->setMulticast(true);
   //vimbaGrabber->setReadOnly(true);
-  //vimbaGrabber->setLoadUserSet(1);
+  vimbaGrabber->setLoadUserSet(1);
 
+  grabber.setVerbose(true);
   grabber.setDesiredFrameRate(60);
   //grabber.setPixelFormat(OF_PIXELS_GRAY);
   grabber.setup(ofGetWindowWidth(), ofGetWindowHeight(), true);
+
+  // run after setup
 }
 
 //--------------------------------------------------------------

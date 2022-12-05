@@ -2,10 +2,16 @@
 
 using namespace OosVimba;
 
+static vmbLogLevel currentLogLevel = VMB_LOG_NOTICE;
+
 void Logger::clearScope() { identity = module; }
 void Logger::setScope() { identity = module; }
 void Logger::setScope(const std::string& nextScope) {
   identity = nextScope == LOGGER_EMPTY ? module : module + "#" + nextScope;
+}
+
+void Logger::setLevel(vmbLogLevel level) {
+  currentLogLevel = level;
 }
 
 void Logger::log(vmbLogLevel level, const std::string& module, const std::string& message, const VmbErrorType& error) {

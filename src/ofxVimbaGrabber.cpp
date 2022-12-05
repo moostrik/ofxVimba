@@ -14,7 +14,6 @@ ofxVimbaGrabber::ofxVimbaGrabber() :
   bMulticast(false), 
   bReadOnly(false), 
   userSet(-1),
-  bInited(false),
   bNewFrame(false),
   bIsConnected(false),
   bResolutionChanged(false),
@@ -26,9 +25,6 @@ ofxVimbaGrabber::ofxVimbaGrabber() :
 bool ofxVimbaGrabber::setup(int _w, int _h) {
   startDiscovery();
   pixels = std::make_shared<ofPixels>();
-  //pixels->allocate(width, height, pixelFormat);
-
-  bInited = true;
   return true;
 }
 
@@ -227,7 +223,7 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> &device)
   
   //device->set("ChunkModeActive", true);
   
-  if (desiredPixelFormat >= 0) device->set("PixelFormat", ofxVimbaUtils::getVimbaPixelFormat(pixelFormat));
+  if (desiredPixelFormat >= 0) device->set("PixelFormat", ofxVimbaUtils::getVimbaPixelFormat(desiredPixelFormat));
   
   string vmbPixelFormat;
   device->get("PixelFormat", vmbPixelFormat);
@@ -237,9 +233,6 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> &device)
     logger.notice("pixel format set to " + ofToString(ofPixelFormat));
     pixelFormat = ofPixelFormat;
   }
-
-  //device->get("Width", width);
-  //device->get("Height", height);
 
   setFrameRate(desiredFrameRate.load());
 }
@@ -297,8 +290,8 @@ void ofxVimbaGrabber::streamFrameCallBack(const std::shared_ptr<OosVimba::Frame>
 // -- SET ----------------------------------------------------------------------
 
 void ofxVimbaGrabber::setVerbose(bool bTalkToMe) {
-  if (bTalkToMe) OosVimba::currentLogLevel = OosVimba::VMB_LOG_VERBOSE;
-  else OosVimba::currentLogLevel = OosVimba::VMB_LOG_NOTICE;
+  if (bTalkToMe) logger.setLevel(OosVimba::VMB_LOG_VERBOSE);
+  else logger.setLevel(OosVimba::VMB_LOG_NOTICE);
 }
 
 void ofxVimbaGrabber::setDeviceID(int simpleID) {
@@ -349,17 +342,11 @@ void ofxVimbaGrabber::setMulticast(bool value) {
 }
 
 bool ofxVimbaGrabber::setPixelFormat(ofPixelFormat format) {
-  //if (!ofVideoGrabber::isInitialized) ofVideoGrabber::setPixelFormat(format);
+  if (format == desiredPixelFormat) return true;
   if (!isConnected()) {
     desiredPixelFormat = format;
-    pixelFormat = format;
-    return true; // the format is not successfully changed YET
+    return false; // the format is not successfully changed YET
   }
-  if (isConnected()) {
-    // check if pixelformat is available, else
-    // return false;
-  }
-
   std::lock_guard<std::mutex> lock(deviceMutex);
   stopStream();
   desiredPixelFormat = format;

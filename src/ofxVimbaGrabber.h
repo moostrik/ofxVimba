@@ -4,40 +4,41 @@
 #include <memory>
 #include <string>
 
+#include "ofMain.h"
 #include "OosVim/OosVimba.h"
 #include "ofxVimbaUtils.h"
 
-#define VIMBA_DEV_MODE
+//#define VIMBA_DEV_MODE
+
+
 
 class ofxVimbaGrabber : public ofBaseVideoGrabber {
- public:
-  // -- SET BEFORE SETUP -------------------------------------------------------
- public:
-  void setDeviceID(int simpleDeviceID) override;
-  void setDeviceID(string deviceID);
-  bool setPixelFormat(ofPixelFormat value) override;
-  void enableMulticast();
-  void enableReadOnly();
-  void enableUserSetLoad();
-
-  // -- SET --------------------------------------------------------------------
- public:
-  void setVerbose(bool bTalkToMe)         override { ; }
-  void setDesiredFrameRate(int framerate) override { setFrameRate(framerate); }
-  void setFrameRate(int _value);
-  void setWidth(int _value);
-  void setHeight(int _value);
+// -- SET --------------------------------------------------------------------
+public:
+  void setVerbose(bool bTalkToMe) override;
+  void setDesiredFrameRate(int fraemRate) override;
+  bool setPixelFormat(ofPixelFormat format) override;
+  void setDeviceID(int simpleID) override;
+  void setDeviceID(string ID);
+  void setMulticast(bool value);
+  void setReadOnly(bool value);
+  void setLoadUserSet(int setToLoad = 1);
+  void loadUserSet() { setLoadUserSet(userSet.load()); }
 
   // -- GET --------------------------------------------------------------------
  public:
   bool isInitialized()        const override { return bInited; }
-  bool isConnected()          const { return activeDevice != nullptr; }
-  bool isDisconnected()       const { return activeDevice == nullptr; }
-  bool isConnecting()         const { return discovery && isDisconnected(); }
-  bool isStreaming()          const { return stream != nullptr; }
-  bool isConnectionChanged()  const { return (isConnected() != bIsConnected); }
-  bool isResolutionChanged()  const { return bResolutionChange; }
+  bool isConnected()          { std::lock_guard<std::mutex> lock(deviceMutex); return activeDevice != nullptr; }
+  bool isConnecting()         { return discovery && !(isConnected()); }
+  bool isConnectionChanged()  { return (isConnected() != bIsConnected); }
   bool isFrameNew()           const override { return bNewFrame; }
+  bool isResolutionChanged()  { return bResolutionChanged; }
+  bool isPixelFormatChanged() { return bPixelFormatChanged; }
+  bool isPixelSizeChanged()   { return bResolutionChanged || bPixelFormatChanged; }
+
+  bool isMultiCast()          { return bMulticast.load(); }
+  bool isReadOnly()           { return bReadOnly.load(); }
+  int  getUserSet()           { return userSet.load(); }
 
   float getWidth()            const override { return width; }
   float getHeight()           const override { return height; }
@@ -45,8 +46,8 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   string getDeviceId()        const { return deviceID; };
 
   ofPixelFormat getPixelFormat()  const override { return pixelFormat; }
+  const ofPixels& getPixels()     const override { return *pixels; }
   ofPixels &getPixels()           override { return *pixels; }
-  const ofPixels &getPixels()     const override { return *pixels; }
 
   // -- LIST -------------------------------------------------------------------
  public:
@@ -71,7 +72,7 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   void startDiscovery();
   void stopDiscovery();
 
-  void triggerCallback(std::shared_ptr<OosVimba::Device> device, const OosVimba::DiscoveryTrigger trigger);
+  void discoveryCallback(std::shared_ptr<OosVimba::Device> device, const OosVimba::DiscoveryTrigger trigger);
   void onDiscoveryFound(std::shared_ptr<OosVimba::Device> &device);
   void onDiscoveryUpdate(std::shared_ptr<OosVimba::Device> &device);
   void onDiscoveryLost(std::shared_ptr<OosVimba::Device> &device);
@@ -80,12 +81,13 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   void openDevice(std::shared_ptr<OosVimba::Device> &device);
   void closeDevice();
   void configureDevice(std::shared_ptr<OosVimba::Device> &device);
+  void setFrameRate(double value);
 
   bool startStream();
   void stopStream();
 
   std::mutex frameMutex;
-  void frameCallBack(const std::shared_ptr<OosVimba::Frame> frame);
+  void streamFrameCallBack(const std::shared_ptr<OosVimba::Frame> frame);
 
   std::shared_ptr<OosVimba::System> system;
   std::shared_ptr<OosVimba::Discovery> discovery;
@@ -102,23 +104,26 @@ class ofxVimbaGrabber : public ofBaseVideoGrabber {
   string deviceID;
   int width;
   int height;
-  int xOffset;
-  int yOffset;
-  float framerate;
+  atomic<float> framerate;
+  atomic<float> desiredFrameRate;
   ofPixelFormat pixelFormat;
+  atomic<ofPixelFormat> desiredPixelFormat;
 
-  bool bMulticast;
-  bool bReadOnly;
-  bool bUserSetLoad;
+  atomic<bool> bMulticast;
+  atomic<bool> bReadOnly;
+  atomic<int>  userSet;
   bool bInited;
   bool bNewFrame;
   bool bIsConnected;
-  bool bResolutionChange;
+  bool bResolutionChanged;
+  bool bPixelFormatChanged;
 
   // -- TOOLS ------------------------------------------------------------------
  private:
   int hexIdToIntId(string _value) const;
   string intIdToHexId(int _intId) const;
+
+  string getUserSetString(int userSet) const;
 
   AVT::VmbAPI::CameraPtr getHandle() const {
     return activeDevice ? activeDevice->getHandle() : AVT::VmbAPI::CameraPtr();

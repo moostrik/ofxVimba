@@ -7,6 +7,8 @@
 
 namespace OosVimba {
 
+static const float MAX_FRAMERATE = 1000;
+
 enum AccessMode {
   AccessModeNone = -1,
   AccessModeAuto = 0,
@@ -42,7 +44,7 @@ template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, long &value);
 
 template <>
-bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, signed long &value);
+bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &value);
 
 template <>
 bool getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value);
@@ -103,33 +105,33 @@ bool setFeature(const AVT::VmbAPI::FeaturePtr &feature, const std::string &value
 
 // Get Feature Range
 template <typename ValueType>
-bool getRange(const AVT::VmbAPI::FeaturePtr &feature, ValueType &min, ValueType &max) {
+bool getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, ValueType &min, ValueType &max) {
   return false;
 }
 
 template <>
-bool getRange(const AVT::VmbAPI::FeaturePtr &feature, long long &min, long long &max);
+bool getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long long &min, long long &max);
 
 template <>
-bool getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long long &min, unsigned long long &max);
+bool getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long long &min, unsigned long long &max);
 
 template <>
-bool getRange(const AVT::VmbAPI::FeaturePtr &feature, long &min, long &max);
+bool getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long &min, long &max);
 
 template <>
-bool getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &min, unsigned long &max);
+bool getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &min, unsigned long &max);
 
 template <>
-bool getRange(const AVT::VmbAPI::FeaturePtr &feature, int &min, int &max);
+bool getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, int &min, int &max);
 
 template <>
-bool getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &min, unsigned int &max);
+bool getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &min, unsigned int &max);
 
 template <>
-bool getRange(const AVT::VmbAPI::FeaturePtr &feature, double &min, double &max);
+bool getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, double &min, double &max);
 
 template <>
-bool getRange(const AVT::VmbAPI::FeaturePtr &feature, float &min, float &max);
+bool getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, float &min, float &max);
 
 // Options
 template <typename ValueType>

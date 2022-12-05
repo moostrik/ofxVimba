@@ -8,8 +8,7 @@ void Logger::setScope(const std::string& nextScope) {
   identity = nextScope == LOGGER_EMPTY ? module : module + "#" + nextScope;
 }
 
-void Logger::log(vmbLogLevel level, const std::string& module,
-                 const std::string& message, const VmbErrorType& error) {
+void Logger::log(vmbLogLevel level, const std::string& module, const std::string& message, const VmbErrorType& error) {
   std::ostringstream out;
 
   out << levelFor(level);

@@ -34,20 +34,20 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long long &val
 }
 
 template <>
+bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr& feature, unsigned long long& value) {
+  if (SP_ISNULL(feature)) return false;
+  VmbInt64_t tmp;
+  if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
+  value = static_cast<unsigned long long>(tmp);
+  return true;
+}
+
+template <>
 bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long &value) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
   value = static_cast<long>(tmp);
-  return true;
-}
-
-template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned long long &value) {
-  if (SP_ISNULL(feature)) return false;
-  VmbInt64_t tmp;
-  if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
-  value = static_cast<unsigned long long>(tmp);
   return true;
 }
 
@@ -175,7 +175,7 @@ bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const std::str
 }
 
 template <>
-bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, long long &min,  long long &max) {
+bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long long &min,  long long &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -186,7 +186,7 @@ bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, long long &min, 
 }
 
 template <>
-bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long long &min, unsigned long long &max) {
+bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long long &min, unsigned long long &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -197,7 +197,7 @@ bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long lo
 }
 
 template <>
-bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, long &min,  long &max) {
+bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long &min,  long &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -208,7 +208,7 @@ bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, long &min,  long
 }
 
 template <>
-bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &min, unsigned long &max) {
+bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &min, unsigned long &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -219,7 +219,7 @@ bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &m
 }
 
 template <>
-bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, int &min, int &max) {
+bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, int &min, int &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -230,7 +230,7 @@ bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, int &min, int &m
 }
 
 template <>
-bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &min, unsigned int &max) {
+bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &min, unsigned int &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -241,7 +241,7 @@ bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &mi
 }
 
 template <>
-bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, double &min,  double &max) {
+bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, double &min,  double &max) {
   if (SP_ISNULL(feature)) return false;
   double vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -252,7 +252,7 @@ bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, double &min,  do
 }
 
 template <>
-bool OosVimba::getRange(const AVT::VmbAPI::FeaturePtr &feature, float &min, float &max) {
+bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, float &min, float &max) {
   if (SP_ISNULL(feature)) return false;
   double vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);

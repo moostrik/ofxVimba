@@ -72,8 +72,30 @@ class Device {
       return false;
     }
 
-    if (setFeature(feature, value)) return true;
+    if (setFeature(feature, value)) {
+      logger.verbose("Feature " + name + " set");
+      return true;
+    }
     else logger.warning("Failed to set value for feature " + name);
+    return false;
+  }
+
+  template <typename ValueType>
+  bool getRange(const std::string& name, ValueType& min, ValueType& max) {
+    if (!isOpen()) {
+      logger.warning("Cannot read features from unopened device");
+      return false;
+    }
+
+    AVT::VmbAPI::FeaturePtr feature;
+    auto error = handle->GetFeatureByName(name.c_str(), feature);
+    if (error != VmbErrorSuccess) {
+      logger.warning("Failed to retrieve feature '" + name + "'", error);
+      return false;
+    }
+
+    if (getFeatureRange(feature, min, max)) return true;
+    else logger.warning("Failed to get range for feature " + name);
     return false;
   }
 

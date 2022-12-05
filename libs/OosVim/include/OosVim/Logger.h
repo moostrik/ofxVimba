@@ -60,18 +60,15 @@ class Logger {
     log(level, LOGGER_EMPTY, message, VmbErrorSuccess);
   };
 
-  static void log(vmbLogLevel level, const std::string &message,
-                  VmbErrorType &error) {
+  static void log(vmbLogLevel level, const std::string &message, VmbErrorType &error) {
     log(level, LOGGER_EMPTY, message, error);
   };
 
-  static void log(vmbLogLevel level, const std::string &module,
-                  const std::string &message) {
+  static void log(vmbLogLevel level, const std::string &module, const std::string &message) {
     log(level, module, message, LOGGER_NO_ERROR);
   };
 
-  static void log(vmbLogLevel level, const std::string &module,
-                  const std::string &message, const VmbErrorType &error);
+  static void log(vmbLogLevel level, const std::string &module,  const std::string &message, const VmbErrorType &error);
 
  private:
   static const char *messageFor(const VmbErrorType &error);

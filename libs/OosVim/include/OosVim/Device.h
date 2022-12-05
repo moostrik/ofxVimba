@@ -72,10 +72,7 @@ class Device {
       return false;
     }
 
-    if (setFeature(feature, value)) {
-      logger.verbose("Feature " + name + " set");
-      return true;
-    }
+    if (setFeature(feature, value)) return true;
     else logger.warning("Failed to set value for feature " + name);
     return false;
   }

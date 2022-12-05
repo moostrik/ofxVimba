@@ -3,25 +3,25 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
 
-  toggleNextDevice = 0;
   vimbaGrabber = std::make_shared<ofxVimbaGrabber>();
   grabber.setGrabber(vimbaGrabber);
+
   devices = grabber.listDevices();
+  selectDevice = 0;
   if (devices.size() > 0) {
-    grabber.setDeviceID(devices[toggleNextDevice].id);
+    //grabber.setDeviceID(devices[selectDevice].id);
   }
 
-  //vimbaGrabber->setPixelFormat(OF_PIXELS_GRAY);
+  //vimbaGrabber->setPixelFormat(OF_PIXELS_RGB);
   vimbaGrabber->setMulticast(true);
   //vimbaGrabber->setReadOnly(true);
   vimbaGrabber->setLoadUserSet(1);
 
-  grabber.setVerbose(true);
-  grabber.setDesiredFrameRate(60);
+  //grabber.setVerbose(true);
+  grabber.setDesiredFrameRate(30);
   //grabber.setPixelFormat(OF_PIXELS_GRAY);
   grabber.setup(ofGetWindowWidth(), ofGetWindowHeight(), true);
 
-  // run after setup
 }
 
 //--------------------------------------------------------------
@@ -56,12 +56,12 @@ void ofApp::keyReleased(ofKeyEventArgs& key) {
     vimbaGrabber->setReadOnly(toggleReadOnly);
     break;
   case 'l':
-    toggleUserSet = (vimbaGrabber->getUserSet() + 1) % 3;
-    vimbaGrabber->setLoadUserSet(toggleUserSet);
+    selectUserSet = (vimbaGrabber->getUserSet() + 1) % 3;
+    vimbaGrabber->setLoadUserSet(selectUserSet);
     break;
   case 'd':
-    toggleNextDevice = (toggleNextDevice + 1) % devices.size();
-    vimbaGrabber->setDeviceID(devices.at(toggleNextDevice).id);
+    selectDevice = (selectDevice + 1) % devices.size();
+    vimbaGrabber->setDeviceID(devices.at(selectDevice).id);
     break;
   default:
     break;

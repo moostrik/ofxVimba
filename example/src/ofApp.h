@@ -18,6 +18,6 @@ class ofApp : public ofBaseApp {
 
   bool  toggleMultiCast;
   bool  toggleReadOnly;
-  int   toggleUserSet;
-  bool  toggleNextDevice;
+  int   selectUserSet;
+  int   selectDevice;
 };

@@ -109,8 +109,6 @@ void Stream::run() {
 }
 
 bool Stream::open() {
-  logger.verbose("Attempting to open capture stream");
-
   if (!isAvailable()) {
     logger.warning("No stream available for device");
     return false;

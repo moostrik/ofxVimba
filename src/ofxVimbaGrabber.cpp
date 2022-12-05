@@ -3,7 +3,7 @@
 using namespace ofxVimba;
 
 ofxVimbaGrabber::ofxVimbaGrabber() :
-  logger("ofxVimbaGrabber"),
+  logger("ofxVimbaGrabber "),
   system(OosVimba::System::getInstance()),
   deviceID(OosVimba::DISCOVERY_ANY_ID), // equals to ""
   width(0), height(0),
@@ -60,7 +60,11 @@ void ofxVimbaGrabber::update() {
     discoveredDevice = nullptr;
     lock.unlock();
 
-    if (activeDevice) closeDevice();
+    if (activeDevice) {
+      closeDevice();
+      startDiscovery();
+    }
+
     if (!activeDevice && !SP_ISNULL(next->getHandle())) openDevice(next);
     listCameras(false);
   }
@@ -74,6 +78,7 @@ void ofxVimbaGrabber::close() {
 // -- DISCOVERY ----------------------------------------------------------------
 
 void ofxVimbaGrabber::startDiscovery() {
+  if (discovery) discovery->stop();
   if (!discovery) {
     discovery = std::make_shared<OosVimba::Discovery>();
     std::function<void(std::shared_ptr<OosVimba::Device> device, const OosVimba::DiscoveryTrigger)> callback = std::bind(&ofxVimbaGrabber::discoveryCallback, this, std::placeholders::_1, std::placeholders::_2);
@@ -111,6 +116,7 @@ void ofxVimbaGrabber::discoveryCallback(std::shared_ptr<OosVimba::Device> device
 void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<OosVimba::Device> &device) {
 
   if (activeDevice && SP_ISEQUAL(activeDevice->getHandle(), device->getHandle())) {
+    logger.warning("Discovered device is already active");
     // We might already be connected to this camera, do nothing
     return;
   }
@@ -118,23 +124,25 @@ void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<OosVimba::Device> &device
   if (!filterDevice(device)) return;
 
   discoveredDevice = device;
+  logger.verbose("Discovered Device " + device->getId());
 }
 
 void ofxVimbaGrabber::onDiscoveryUpdate(std::shared_ptr<OosVimba::Device> &device) {
   if (activeDevice) {
     if (SP_ISEQUAL(activeDevice->getHandle(), device->getHandle()) && !(bReadOnly || device->isAvailable())) {
-      // Our access mode dropped, schedule a disconnect
       discoveredDevice = std::make_shared<OosVimba::Device>(AVT::VmbAPI::CameraPtr());
+      logger.notice("Discovery Update : Our access mode dropped, schedule a disconnect for ", device->getId());
     }
   } else if (filterDevice(device)) {
     discoveredDevice = device;
+    logger.verbose("Discovery Update: Device becomes available ", device->getId());
   }
 }
 
 void ofxVimbaGrabber::onDiscoveryLost(std::shared_ptr<OosVimba::Device> &device) {
-  if (!activeDevice || !SP_ISEQUAL(activeDevice->getHandle(), device->getHandle()))
-    return;
+  if (!activeDevice || !SP_ISEQUAL(activeDevice->getHandle(), device->getHandle())) return;
   discoveredDevice = std::make_shared<OosVimba::Device>(AVT::VmbAPI::CameraPtr());
+  logger.notice("Discovery Update: Device lost ", device->getId());
 }
 
 // -- DEVICE -------------------------------------------------------------------
@@ -149,8 +157,8 @@ bool ofxVimbaGrabber::filterDevice(std::shared_ptr<OosVimba::Device> &device) {
   OosVimba::AccessMode requestedAccesMode = bReadOnly ? OosVimba::AccessModeRead : OosVimba::AccessModeMaster;
 
   if (device->getAvailableAccessMode() < requestedAccesMode) {
-    ofLogWarning("ofxVimbaGrabber::openDevice") << device->getId() << " acces mode " << requestedAccesMode <<
-                                    " not available. Availability is " << device->getAvailableAccessMode();
+    logger.warning("filterDevice " + device->getId() + " acces mode " + ofToString(requestedAccesMode) +
+      " is not available. Availability is " + ofToString(device->getAvailableAccessMode()));
     return false;
   }
 
@@ -166,14 +174,13 @@ void ofxVimbaGrabber::openDevice(std::shared_ptr<OosVimba::Device> &device) {
   OosVimba::AccessMode requestedAccesMode = bReadOnly ? OosVimba::AccessModeRead : OosVimba::AccessModeMaster;
 
   if (!isAccessModeAvailable(requestedAccesMode, device->getAvailableAccessMode())) {
-    ofLogWarning("ofxVimbaGrabber::openDevice") << device->getId() << " acces mode " << requestedAccesMode <<
-                                    " not available. Availability is " << device->getAvailableAccessMode();
+    logger.warning("openDevice " + device->getId() + " acces mode " + ofToString(requestedAccesMode) +
+      " is not available. Availability is " + ofToString(device->getAvailableAccessMode()));
     return;
   }
 
   if (!device->open(requestedAccesMode)) {
-    ofLogWarning("ofxVimbaGrabber::openDevice") << "unable to open" << device->getId() <<
-                                                   " with acces mode " << requestedAccesMode;
+    logger.warning("openDevice : unable to open" + device->getId() +" with acces mode " + ofToString(requestedAccesMode));
     return;
   }
 
@@ -187,10 +194,8 @@ void ofxVimbaGrabber::openDevice(std::shared_ptr<OosVimba::Device> &device) {
 
   startStream();
 
-  logger.notice("Opened camera connection");
-  if (bReadOnly) {
-    logger.notice("running in read only mode");
-  }
+  if (!bReadOnly) logger.verbose("Opened connection");
+  else logger.notice("Opened read only connection");
 }
 
 void ofxVimbaGrabber::closeDevice() {
@@ -202,7 +207,9 @@ void ofxVimbaGrabber::closeDevice() {
     activeDevice->close();
     activeDevice = nullptr;
 
-    logger.notice("Closed camera connection");
+    if (!bReadOnly) logger.verbose("Closed connection");
+    else logger.notice("Closed read only connection");
+
     logger.clearScope();
   }
 }
@@ -212,7 +219,7 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> &device)
   activeDevice->run("GVSPAdjustPacketSize");
   VmbInt64_t GVSPPacketSize;
   activeDevice->get("GVSPPacketSize", GVSPPacketSize);
-  ofLogVerbose("ofxVimbaGrabber::openDevice") << "Packet size set to " << GVSPPacketSize;
+  logger.verbose("Packet size set to " + ofToString(GVSPPacketSize));
 
   device->set("MulticastEnable", bMulticast);
 
@@ -223,18 +230,17 @@ void ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> &device)
   
   //device->set("ChunkModeActive", true);
   
-  if (desiredPixelFormat >= 0) device->set("PixelFormat", ofxVimbaUtils::getVimbaPixelFormat(desiredPixelFormat));
-  
+  if (desiredPixelFormat >= 0) device->set("PixelFormat", ofxVimbaUtils::getVimbaPixelFormat(desiredPixelFormat));  
   string vmbPixelFormat;
   device->get("PixelFormat", vmbPixelFormat);
-  auto ofPixelFormat = ofxVimbaUtils::getOfPixelFormat(vmbPixelFormat);
+  pixelFormat = ofxVimbaUtils::getOfPixelFormat(vmbPixelFormat);
 
-  if (pixelFormat != ofPixelFormat) {
-    logger.notice("pixel format set to " + ofToString(ofPixelFormat));
-    pixelFormat = ofPixelFormat;
+  if (pixelFormat != desiredPixelFormat) {
+    logger.notice("pixel format set to " + ofToString(pixelFormat));
   }
 
   setFrameRate(desiredFrameRate.load());
+  logger.notice("Device Configured");
 }
 
 void ofxVimbaGrabber::setFrameRate(double value) {
@@ -244,8 +250,15 @@ void ofxVimbaGrabber::setFrameRate(double value) {
   double min, max;
   device->getRange("AcquisitionFrameRateAbs", min, max);
   framerate.store(ofClamp(value, min + 0.1, max - 0.1));
-  //framerate.store(ofClamp(value, min, max));
   device->set("AcquisitionFrameRateAbs", framerate);
+  double fr;
+  device->get("AcquisitionFrameRateAbs", fr);
+  framerate.store(fr);
+
+  if (framerate != value) {
+    logger.notice("framerate set to " + ofToString(framerate));
+  }
+
 }
 
 // -- STREAM -------------------------------------------------------------------
@@ -363,16 +376,13 @@ void ofxVimbaGrabber::setLoadUserSet(int setToLoad) {
   stopStream();
   configureDevice(activeDevice);
   startStream();
-  logger.notice("loaded user set", ofToString(userSet.load()));
+  //logger.notice("loaded user set", ofToString(userSet.load()));
 }
 
 void ofxVimbaGrabber::setDesiredFrameRate(int frameRate) {
   desiredFrameRate.store(frameRate);
   if (!isConnected()) return;
   setFrameRate(desiredFrameRate.load());
-  if (framerate.load() == desiredFrameRate.load())
-    logger.verbose("framerate set to", ofToString(framerate.load()));
-  else logger.notice("framerate set to", ofToString(framerate.load()));
 }
 
 // -- LIST ---------------------------------------------------------------------

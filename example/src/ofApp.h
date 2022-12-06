@@ -13,8 +13,11 @@ class ofApp : public ofBaseApp {
 
  private:
   ofVideoGrabber grabber;
-  ofPtr<ofxVimbaGrabber> vimbaGrabber; 
+  ofPtr<ofxVimbaGrabber> vimbaGrabber;
   vector<ofVideoDevice> devices;
+
+
+  ofPtr<ofxVimbaGrabber> vimbaGrabber2;
 
   bool  toggleMultiCast;
   bool  toggleReadOnly;

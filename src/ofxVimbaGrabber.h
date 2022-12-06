@@ -16,7 +16,7 @@ public:
  ofxVimbaGrabber();
  virtual ~ofxVimbaGrabber() { ofxVimbaGrabber::close(); }
 
- bool setup(int w, int h) override;
+ bool setup(int w = 0, int h = 0) override;
  void update() override;
  void close() override;
 

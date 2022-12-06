@@ -33,7 +33,7 @@ public:
   // -- GET --------------------------------------------------------------------
   bool isInitialized()        const override { return bInited; }
   bool isFrameNew()           const override { return bNewFrame; }
-  bool isConnected()          { return deviceConnected.load(); }
+  bool isConnected()          { return getActiveDevice() != nullptr; }
   bool isResolutionChanged()  { return bResolutionChanged; }
   bool isPixelFormatChanged() { return bPixelFormatChanged; }
   bool isPixelSizeChanged()   { return bResolutionChanged || bPixelFormatChanged; }
@@ -63,7 +63,6 @@ public:
   // -- CORE -------------------------------------------------------------------
   std::shared_ptr<OosVimba::System> system;
   std::shared_ptr<OosVimba::Discovery> discovery;
-  std::shared_ptr<OosVimba::Device> activeDevice;
   std::shared_ptr<OosVimba::Stream> stream;
   OosVimba::Logger logger;
 
@@ -86,28 +85,29 @@ public:
   // -- DISCOVERY --------------------------------------------------------------
   void startDiscovery();
   void stopDiscovery();
-  void discoveryCallback(std::shared_ptr<OosVimba::Device> device, const OosVimba::DiscoveryTrigger trigger);
-  void onDiscoveryFound(std::shared_ptr<OosVimba::Device> &device);
-  void onDiscoveryUpdate(std::shared_ptr<OosVimba::Device> &device);
-  void onDiscoveryLost(std::shared_ptr<OosVimba::Device> &device);
+  void discoveryCallback(std::shared_ptr<OosVimba::Device>  device, const OosVimba::DiscoveryTrigger trigger);
+  void onDiscoveryFound(std::shared_ptr<OosVimba::Device>   device);
+  void onDiscoveryUpdate(std::shared_ptr<OosVimba::Device>  device);
+  void onDiscoveryLost(std::shared_ptr<OosVimba::Device>    device);
 
   // DEVICE
   string deviceID;
   std::mutex deviceMutex;
-  atomic<bool> deviceConnected;
-  bool filterDevice(std::shared_ptr<OosVimba::Device> &device);
-  void openDevice(std::shared_ptr<OosVimba::Device> &device);
-  void closeDevice();
-  void configureDevice(std::shared_ptr<OosVimba::Device> &device);
-  std::shared_ptr<OosVimba::Device> getActiveDevice();
+  std::shared_ptr<OosVimba::Device> activeDevice;
+  bool filterDevice(std::shared_ptr<OosVimba::Device>     device, std::string id);
+  bool openDevice(std::shared_ptr<OosVimba::Device>       device);
+  void closeDevice(std::shared_ptr<OosVimba::Device>      device);
+  bool configureDevice(std::shared_ptr<OosVimba::Device>  device);
   bool isEqualDevice(std::shared_ptr<OosVimba::Device> dev1, std::shared_ptr<OosVimba::Device> dev2);
+  std::shared_ptr<OosVimba::Device> getActiveDevice();
+  void setActiveDevice(std::shared_ptr<OosVimba::Device> device);
 
   //
 
-  void setFrameRate(double value);
+  void setFrameRate(std::shared_ptr<OosVimba::Device> device, double value);
 
   // STREAM
-  bool startStream();
+  bool startStream(std::shared_ptr<OosVimba::Device> device);
   void stopStream();
   std::mutex frameMutex;
   void streamFrameCallBack(const std::shared_ptr<OosVimba::Frame> frame);

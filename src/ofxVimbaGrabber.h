@@ -57,6 +57,7 @@ public:
  private:
   void listCameras(bool _verbose);
   void printCameras() const;
+  mutable std::mutex listMutex;
   std::vector<ofVideoDevice> ofDevices;
 
   // -- CORE -------------------------------------------------------------------

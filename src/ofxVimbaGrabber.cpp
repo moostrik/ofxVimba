@@ -6,11 +6,11 @@ ofxVimbaGrabber::ofxVimbaGrabber() :
   logger("ofxVimbaGrabber "),
   system(OosVimba::System::getInstance()),
   actionsRunning(false),
-  deviceID(OosVimba::DISCOVERY_ANY_ID), // equals to ""
+  deviceID(OosVimba::DISCOVERY_ANY_ID),
   deviceConnected(false),
   width(0), height(0),
   framerate(0),
-  desiredFrameRate(OosVimba::MAX_FRAMERATE), // equaactiveDevicels to 1000
+  desiredFrameRate(OosVimba::MAX_FRAMERATE),
   pixelFormat(OF_PIXELS_UNKNOWN),
   desiredPixelFormat(OF_PIXELS_NATIVE),
   bMulticast(false),
@@ -98,7 +98,7 @@ void ofxVimbaGrabber::actionRunner() {
 
       if (action.type == ActionType::Disconnect){
         closeDevice();
-        discovery->requestID(deviceID);
+//        discovery->requestID(deviceID);
         discovery->updateTriggers();
       }
 
@@ -112,7 +112,6 @@ void ofxVimbaGrabber::actionRunner() {
         configureDevice(activeDevice);
         startStream();
       }
-//      listCameras(false);
       lock.lock();
     }
 
@@ -127,7 +126,7 @@ void ofxVimbaGrabber::startDiscovery() {
     std::function<void(std::shared_ptr<OosVimba::Device> device, const OosVimba::DiscoveryTrigger)> callback = std::bind(&ofxVimbaGrabber::discoveryCallback, this, std::placeholders::_1, std::placeholders::_2);
     discovery->setTriggerCallback(callback);
   }
-  discovery->requestID(deviceID);
+//  discovery->requestID(deviceID);
   discovery->start();
 }
 
@@ -153,6 +152,7 @@ void ofxVimbaGrabber::discoveryCallback(std::shared_ptr<OosVimba::Device> device
     default:
       break;
   }
+  listCameras(false);
 }
 
 void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<OosVimba::Device> &device) {
@@ -399,6 +399,7 @@ void ofxVimbaGrabber::setDesiredFrameRate(int framerate) {
 // -- LIST ---------------------------------------------------------------------
 
 std::vector<ofVideoDevice> ofxVimbaGrabber::listDevices() const {
+  std::lock_guard<std::mutex> lock(listMutex);
   printCameras();
   return ofDevices;
 }
@@ -418,8 +419,7 @@ void ofxVimbaGrabber::listCameras(bool _verbose) {
     return;
   }
 
-  ofDevices.clear();
-
+  std::vector<ofVideoDevice> videoDevices;
   for (auto cam : cameras) {
     auto device = std::make_shared<OosVimba::Device>(cam);
     ofVideoDevice ofDevice;
@@ -430,7 +430,12 @@ void ofxVimbaGrabber::listCameras(bool _verbose) {
     ofDevice.serialID = device->getSerial();
     ofDevice.bAvailable =
         (device->getAvailableAccessMode() == OosVimba::AccessModeMaster);
-    ofDevices.push_back(ofDevice);
+    videoDevices.push_back(ofDevice);
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(listMutex);
+    ofDevices.swap(videoDevices);
   }
 
   if (_verbose) {

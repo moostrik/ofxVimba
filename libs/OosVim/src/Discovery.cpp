@@ -41,6 +41,21 @@ bool Discovery::stop() {
   return true;
 }
 
+void Discovery::requestID(std::string id) {
+  reqID = id;
+  if(observer) observer->setId(id);
+}
+
+void Discovery::updateTriggers() {
+  if(observer) observer->discover();
+}
+
+
+void Discovery::Observer::setId(std::string id) {
+  std::lock_guard<std::mutex> lock(reqIdMutex);
+  reqID = id;
+}
+
 void Discovery::Observer::discover() {
   if (!system->isAvailable()) {
     logger.error(
@@ -67,7 +82,11 @@ void Discovery::Observer::process(AVT::VmbAPI::CameraPtr camera,
   auto device = std::make_shared<Device>(camera);
 
   // Make sure the provided filter matched the camera
+
+  {
+  std::lock_guard<std::mutex> lock(reqIdMutex);
   if (reqID != DISCOVERY_ANY_ID && device->getId() != reqID) return;
+  }
 
   // Publish the event
   if (discovery.triggerCallbackFuction)

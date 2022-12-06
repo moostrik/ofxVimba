@@ -21,10 +21,10 @@ Stream::Stream(const std::shared_ptr<Device> device,
 Stream::~Stream() { stop(); }
 
 bool Stream::isStalled() const {
-  auto now = getElapsedTime();
-  if (now - frameAt > CAMERA_STALLED_TIMEOUT) {
-    return now - connectedAt > CAMERA_INITIALIZE_TIMEOUT;
-  }
+//  auto now = getElapsedTime();
+//  if (now - frameAt > CAMERA_STALLED_TIMEOUT) {
+//    return now - connectedAt > CAMERA_INITIALIZE_TIMEOUT;
+//  }
 
   return false;
 }

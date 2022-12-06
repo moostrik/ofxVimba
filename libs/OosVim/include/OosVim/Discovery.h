@@ -28,7 +28,8 @@ class Discovery {
   ~Discovery();
 
   // Trigger connection and disconnection
-  void requestID(std::string id) { reqID = id; }
+  void requestID(std::string id);
+  void updateTriggers();
 
   bool start();
   bool stop();
@@ -62,14 +63,17 @@ class Discovery {
       process(camera, reason);
     }
 
+    void setId(std::string id);
+    void discover();
+
    private:
     Logger logger;
     std::shared_ptr<System> system;
 
     Discovery &discovery;
+    std::mutex reqIdMutex;
     std::string reqID;
 
-    void discover();
     void process(AVT::VmbAPI::CameraPtr camera, AVT::VmbAPI::UpdateTriggerType reason);
   };
 

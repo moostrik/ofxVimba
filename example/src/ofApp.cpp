@@ -2,10 +2,12 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-
+  selectDevice = 0;
+  toggleReadOnly = false;
+  toggleMultiCast = true;
+  togglePixelMode = false;
+  selectUserSet = 1;
   vimbaGrabber = std::make_shared<ofxVimbaGrabber>();
-
-  vimbaGrabber2 = std::make_shared<ofxVimbaGrabber>();
 
   grabber.setGrabber(vimbaGrabber);
 
@@ -13,31 +15,28 @@ void ofApp::setup() {
   selectDevice = 0;
   if (devices.size() > 0) {
     grabber.setDeviceID(devices[selectDevice].id);
-    vimbaGrabber2->setDeviceID(devices[1].id);
   }
 
-//  vimbaGrabber->setReadOnly(true);
-  vimbaGrabber->setMulticast(true);
-  vimbaGrabber->setLoadUserSet(1);
+  vimbaGrabber->setReadOnly(toggleReadOnly);
+  vimbaGrabber->setMulticast(toggleMultiCast);
+  vimbaGrabber->setLoadUserSet(selectUserSet);
 
-  grabber.setPixelFormat(OF_PIXELS_RGB);  // or vimbaGrabber->setPixelFormat(OF_PIXELS_RGB);
+  ofPixelFormat format = togglePixelMode? OF_PIXELS_MONO: OF_PIXELS_RGB;
+  grabber.setPixelFormat(format);  // or vimbaGrabber->setPixelFormat(OF_PIXELS_RGB);
   grabber.setDesiredFrameRate(30);        // or vimbaGrabber->setDesiredFrameRate(30);
   grabber.setup(ofGetWindowWidth(), ofGetWindowHeight(), true);
 
-  vimbaGrabber2->setup();
-//  grabber.setVerbose(true);
-
-  // after setup this will not work
-//  grabber.setPixelFormat(OF_PIXELS_GRAY);
-  // but this will
-//  vimbaGrabber->setPixelFormat(OF_PIXELS_GRAY);
-
+  text = "Press Key: \n"
+         "'d' to select next device \n"
+         "'r' to toggle readonly \n"
+         "'m' to toggle multicast \n"
+         "'p' to toggle pixelmode \n"
+         "'l' to load next userset";
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
   grabber.update();
-  vimbaGrabber2->update();
 
   if (vimbaGrabber->isResolutionChanged()) {
     ofSetWindowShape(max((int)vimbaGrabber->getWidth(), 128), max((int)vimbaGrabber->getHeight(), 128));
@@ -49,18 +48,27 @@ void ofApp::draw() {
   ofClear(0, 0, 0);
   if (grabber.isInitialized()) {
     grabber.draw(0, 0);
-    ofDrawBitmapStringHighlight(vimbaGrabber->getDeviceId(), glm::vec2(10,20));
   }
+  drawText();
+}
 
-  if (vimbaGrabber2->isConnected()) {
-    if (vimbaGrabber2->getPixels().isAllocated()) {
-      ofImage image;
-      image.setFromPixels(vimbaGrabber2->getPixels());
-      image.draw(0,0,100,100);
+void ofApp::drawText() {
+  string status;
+  if (grabber.isInitialized()) {
+    status = vimbaGrabber->getDeviceId();
+    if(vimbaGrabber->isConnected()) {
+      status += " connected";
+      if (vimbaGrabber->isReadOnly()) status += " in readonly mode";
+      else if (vimbaGrabber->isMultiCast()) status += " with multicast enabled";
     }
-  }
+    else
+      status += " not connected";
+  } else
+    status = "grabber not initialized";
 
-  ofDrawCircle(glm::vec2(ofGetWindowWidth() - 20, sin(fmod(ofGetElapsedTimef() * 0.2, PI)) * ofGetWindowHeight()), 10);
+  ofDrawBitmapStringHighlight(status, glm::vec2(10,20));
+  ofDrawBitmapStringHighlight(ofToString(int(ofGetFrameRate())), glm::vec2(ofGetWindowWidth() - 50 ,20));
+  ofDrawBitmapStringHighlight(text, glm::vec2(10, ofGetWindowHeight() - 80));
 }
 
 //--------------------------------------------------------------
@@ -68,22 +76,31 @@ void ofApp::draw() {
 void ofApp::keyReleased(ofKeyEventArgs& key) {
   switch (key.key)
   {
-  case 'm':
-    toggleMultiCast = !vimbaGrabber->isMultiCast();
-    vimbaGrabber->setMulticast(toggleMultiCast);
+  case 'd':
+    devices = grabber.listDevices();
+    if (devices.empty()) break;
+    selectDevice = (selectDevice + 1) % devices.size();
+    vimbaGrabber->setDeviceID(devices.at(selectDevice).id);
+    //  notice that the similar method
+    //    grabber.setDeviceID(devices.at(selectDevice).id);
+    //  will not work, as ofVideoGrabber will not allow
+    //  the device to be set while the grabber is running
     break;
   case 'r':
     toggleReadOnly = !vimbaGrabber->isReadOnly();
     vimbaGrabber->setReadOnly(toggleReadOnly);
     break;
+  case 'm':
+    toggleMultiCast = !vimbaGrabber->isMultiCast();
+    vimbaGrabber->setMulticast(toggleMultiCast);
+    break;
   case 'l':
     selectUserSet = (vimbaGrabber->getUserSet() + 1) % 3;
     vimbaGrabber->setLoadUserSet(selectUserSet);
     break;
-  case 'd':
-    devices = grabber.listDevices();
-    selectDevice = (selectDevice + 1) % devices.size();
-    vimbaGrabber->setDeviceID(devices.at(selectDevice).id);
+  case 'p':
+    togglePixelMode = !togglePixelMode;
+    vimbaGrabber->setPixelFormat(togglePixelMode? OF_PIXELS_MONO: OF_PIXELS_RGB);
     break;
   default:
     break;

@@ -64,11 +64,11 @@ public:
   std::shared_ptr<OosVimba::Logger>     logger;
 
   // -- FRAME ------------------------------------------------------------------
-  bool bNewFrame;
   std::shared_ptr<ofPixels> pixels;
   ofPixelFormat pixelFormat;
   int width;
   int height;
+  bool bNewFrame;
   bool bResolutionChanged;
   bool bPixelFormatChanged;
 
@@ -126,13 +126,16 @@ public:
   void setFrameRate(std::shared_ptr<OosVimba::Device> device, double value);
 
   // -- LIST -------------------------------------------------------------------
-  void listCameras(bool _verbose);
-  void printCameras() const;
   mutable std::mutex listMutex;
-  std::vector<ofVideoDevice> ofDevices;
+  std::vector<ofVideoDevice> deviceList;
+  std::vector<ofVideoDevice> getDeviceList() const;
+  void updateDeviceList();
+  std::vector<ofVideoDevice> createDeviceList();
+  void printDeviceList(std::vector<ofVideoDevice> dList) const;
+  std::string createCameraString(std::vector<ofVideoDevice> dList) const;
 
   // -- TOOLS ------------------------------------------------------------------
-  int hexIdToIntId(string _value) const;
-  string intIdToHexId(int _intId) const;
-  string getUserSetString(int userSet) const;
+  static int hexIdToIntId(string _value);
+  static std::string intIdToHexId(int _intId);
+  static std::string getUserSetString(int userSet);
 };

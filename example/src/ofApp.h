@@ -8,19 +8,20 @@ class ofApp : public ofBaseApp {
   void setup();
   void update();
   void draw();
+  void drawText();
 
   void keyReleased(ofKeyEventArgs& key);
 
  private:
   ofVideoGrabber grabber;
   ofPtr<ofxVimbaGrabber> vimbaGrabber;
+
   vector<ofVideoDevice> devices;
-
-
-  ofPtr<ofxVimbaGrabber> vimbaGrabber2;
-
-  bool  toggleMultiCast;
-  bool  toggleReadOnly;
-  int   selectUserSet;
   int   selectDevice;
+  bool  toggleReadOnly;
+  bool  toggleMultiCast;
+  bool  togglePixelMode;
+  int   selectUserSet;
+
+  string text;
 };

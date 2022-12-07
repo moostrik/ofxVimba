@@ -3,33 +3,33 @@
 using namespace ofxVimba;
 
 ofxVimbaGrabber::ofxVimbaGrabber() :
-  system(OosVimba::System::getInstance()),
-  actionsRunning(false),
-  deviceID(OosVimba::DISCOVERY_ANY_ID),
-  width(0), height(0),
-  framerate(0),
-  desiredFrameRate(OosVimba::MAX_FRAMERATE),
-  pixelFormat(OF_PIXELS_UNKNOWN),
-  desiredPixelFormat(OF_PIXELS_NATIVE),
-  bMulticast(false),
-  bReadOnly(false),
-  userSet(-1),
   bInited(false),
+  system(OosVimba::System::getInstance()),
+  discovery(nullptr),
+  stream(nullptr),
+  logger(std::make_shared<OosVimba::Logger>("ofxVimbaGrabber ")),
+  pixels(std::make_shared<ofPixels>()),
+  pixelFormat(OF_PIXELS_UNKNOWN),
+  width(0), height(0),
   bNewFrame(false),
   bResolutionChanged(false),
-  bPixelFormatChanged(false)
-{
-  listCameras(false);
-}
+  bPixelFormatChanged(false),
+  actionsRunning(false),
+  deviceID(OosVimba::DISCOVERY_ANY_ID),
+  bReadOnly(false),
+  bMulticast(false),
+  userSet(-1),
+  desiredPixelFormat(OF_PIXELS_NATIVE),
+  desiredFrameRate(OosVimba::MAX_FRAMERATE),
+  framerate(0),
+  deviceList(createDeviceList())
+{ }
 
 bool ofxVimbaGrabber::setup(int _w, int _h) {
   if (bInited) return true;
-  pixels = std::make_shared<ofPixels>();
 
   actionsRunning = true;
   actionThread = std::make_shared<std::thread>(std::bind(&ofxVimbaGrabber::actionRunner, this));
-
-  logger =std::make_shared<OosVimba::Logger>("ofxVimbaGrabber ");
 
   startDiscovery();
   bInited = true;
@@ -188,6 +188,7 @@ void ofxVimbaGrabber::actionRunner() {
 }
 
 // -- DISCOVERY ----------------------------------------------------------------
+
 void ofxVimbaGrabber::startDiscovery() {
   if (!discovery) {
     discovery = std::make_shared<OosVimba::Discovery>();
@@ -220,7 +221,7 @@ void ofxVimbaGrabber::discoveryCallback(std::shared_ptr<OosVimba::Device> device
     default:
       break;
   }
-  listCameras(false);
+  updateDeviceList();
 }
 
 void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<OosVimba::Device> device) {
@@ -408,16 +409,27 @@ void ofxVimbaGrabber::streamFrameCallBack(const std::shared_ptr<OosVimba::Frame>
 // -- LIST ---------------------------------------------------------------------
 
 std::vector<ofVideoDevice> ofxVimbaGrabber::listDevices() const {
-  std::lock_guard<std::mutex> lock(listMutex);
-  printCameras();
-  return ofDevices;
+  std::vector<ofVideoDevice> deviceList = getDeviceList();
+  printDeviceList(deviceList);
+  return deviceList;
 }
 
-void ofxVimbaGrabber::listCameras(bool _verbose) {
+std::vector<ofVideoDevice> ofxVimbaGrabber::getDeviceList() const {
+  std::lock_guard<std::mutex> lock(listMutex);
+  return deviceList;
+}
+
+void ofxVimbaGrabber::updateDeviceList() {
+  std::lock_guard<std::mutex> lock(listMutex);
+  deviceList = createDeviceList();
+}
+
+std::vector<ofVideoDevice> ofxVimbaGrabber::createDeviceList() {
+  std::vector<ofVideoDevice> videoDevices;
   if (!system->isAvailable()) {
     logger->error(
         "Failed to retrieve current camera list, system is unavailable");
-    return;
+    return videoDevices;
   }
 
   AVT::VmbAPI::CameraPtrVector cameras;
@@ -425,10 +437,9 @@ void ofxVimbaGrabber::listCameras(bool _verbose) {
 
   if (err != VmbErrorSuccess) {
     logger->error("Failed to retrieve current camera list");
-    return;
+    return videoDevices;
   }
 
-  std::vector<ofVideoDevice> videoDevices;
   for (auto cam : cameras) {
     auto device = std::make_shared<OosVimba::Device>(cam);
     ofVideoDevice ofDevice;
@@ -442,42 +453,39 @@ void ofxVimbaGrabber::listCameras(bool _verbose) {
     videoDevices.push_back(ofDevice);
   }
 
-  {
-    std::lock_guard<std::mutex> lock(listMutex);
-    ofDevices.swap(videoDevices);
-  }
-
-  if (_verbose) {
-    printCameras();
-  }
+  return videoDevices;
 }
 
-void ofxVimbaGrabber::printCameras() const {
+void ofxVimbaGrabber::printDeviceList(std::vector<ofVideoDevice> dList) const {
+  auto cameraString = createCameraString(dList);
+  std::cout << cameraString << std::endl;
+}
+
+std::string  ofxVimbaGrabber::createCameraString(std::vector<ofVideoDevice> dList) const {
   std::ostringstream out;
   out << endl;
   out << "##########################################################################################";
   out << endl;
-  out << "##             LISTING CAMERAS" << endl;
-  for (int i = 0; i < (int)ofDevices.size(); i++) {
-    auto dev = ofDevices[i];
+  out << "##           LISTING CAMERAS" << endl;
+  for (int i = 0; i < (int)dList.size(); i++) {
+    auto dev = dList[i];
     out << "##  " << i << "  name: " << dev.deviceName.c_str()
          << "  simple id: " << dev.id << "  id: " << intIdToHexId(dev.id)
          << "  available: " << dev.bAvailable << endl;
   }
-  if (ofDevices.size() == 0) {
+  if (dList.size() == 0) {
     out << "## no cameras found" << endl;
   }
 
   out << "##" << endl;
   out << "##########################################################################################";
   out << endl;
-  out << endl;
-  cout << out.str() << endl;
+  return out.str();;
 }
 
 // -- TOOLS --------------------------------------------------------------------
 
-int ofxVimbaGrabber::hexIdToIntId(string value) const {
+int ofxVimbaGrabber::hexIdToIntId(string value) {
   int intId;
   std::stringstream ss;
   // Last 6 hex values: the unique ID as used in the predecessor of Vimba, PvAPI
@@ -487,7 +495,7 @@ int ofxVimbaGrabber::hexIdToIntId(string value) const {
   return intId;
 }
 
-string ofxVimbaGrabber::intIdToHexId(int _intId) const {
+std::string ofxVimbaGrabber::intIdToHexId(int _intId) {
   std::stringstream ss;
   ss << std::uppercase << std::hex << _intId;
   std::string stringId(ss.str());
@@ -498,7 +506,7 @@ string ofxVimbaGrabber::intIdToHexId(int _intId) const {
   return stringId;
 }
 
-string ofxVimbaGrabber::getUserSetString(int userSet) const {
+std::string ofxVimbaGrabber::getUserSetString(int userSet) {
   std::string us = "Default";
   if (userSet >= 1 && userSet <= 3) {
     us = "UserSet" + ofToString(userSet);

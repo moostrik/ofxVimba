@@ -44,23 +44,24 @@ public:
 
   float getWidth()            const override { return width; }
   float getHeight()           const override { return height; }
-  float getFrameRate()        const { return framerate; }
-  string getDeviceId()        const { return deviceID; };
+  float getFrameRate()        const { return framerate.load(); }
+  string getDeviceId()        const { std::lock_guard<std::mutex> lock(deviceMutex); return deviceID; };
 
   ofPixelFormat getPixelFormat()  const override { return pixelFormat; }
   const ofPixels& getPixels()     const override { return *pixels; }
   ofPixels &getPixels()           override { return *pixels; }
 
-  // -- LIST -------------------------------------------------------------------
   std::vector<ofVideoDevice> listDevices() const override;
 
  private:
+  // -- LIST -------------------------------------------------------------------
   void listCameras(bool _verbose);
   void printCameras() const;
   mutable std::mutex listMutex;
   std::vector<ofVideoDevice> ofDevices;
 
   // -- CORE -------------------------------------------------------------------
+  bool bInited;
   std::shared_ptr<OosVimba::System> system;
   std::shared_ptr<OosVimba::Discovery> discovery;
   std::shared_ptr<OosVimba::Stream> stream;
@@ -72,10 +73,11 @@ public:
     ActionType type;
     std::shared_ptr<OosVimba::Device> device;
     Action(ActionType _type, std::shared_ptr<OosVimba::Device> _device) : type(_type), device(_device) {};
+    bool operator == (Action action) { return action.type == type && action.device == device; }
   };
 
   std::mutex actionMutex;
-  std::queue<Action> actionQueue;
+  std::deque<Action> actionQueue;
   std::condition_variable actionSignal;
   std::shared_ptr<std::thread> actionThread;
   std::atomic<bool> actionsRunning;
@@ -90,9 +92,9 @@ public:
   void onDiscoveryUpdate(std::shared_ptr<OosVimba::Device>  device);
   void onDiscoveryLost(std::shared_ptr<OosVimba::Device>    device);
 
-  // DEVICE
+  // -- DEVICE -----------------------------------------------------------------
   string deviceID;
-  std::mutex deviceMutex;
+  mutable std::mutex deviceMutex;
   std::shared_ptr<OosVimba::Device> activeDevice;
   bool filterDevice(std::shared_ptr<OosVimba::Device>     device, std::string id);
   bool openDevice(std::shared_ptr<OosVimba::Device>       device);
@@ -102,41 +104,35 @@ public:
   std::shared_ptr<OosVimba::Device> getActiveDevice();
   void setActiveDevice(std::shared_ptr<OosVimba::Device> device);
 
-  //
-
-  void setFrameRate(std::shared_ptr<OosVimba::Device> device, double value);
-
-  // STREAM
+  // -- STREAM -----------------------------------------------------------------
   bool startStream(std::shared_ptr<OosVimba::Device> device);
   void stopStream();
   std::mutex frameMutex;
   void streamFrameCallBack(const std::shared_ptr<OosVimba::Frame> frame);
   std::shared_ptr<ofPixels> receivedPixels;
 
-  // FRAME
+  // -- FRAME ------------------------------------------------------------------
   bool bNewFrame;
   std::shared_ptr<ofPixels> pixels;
+  ofPixelFormat pixelFormat;
   int width;
   int height;
   bool bResolutionChanged;
-
-  ofPixelFormat pixelFormat;
-  atomic<ofPixelFormat> desiredPixelFormat;
   bool bPixelFormatChanged;
 
+  // -- FRAMERATE --------------------------------------------------------------
   atomic<float> framerate;
-  atomic<float> desiredFrameRate;
+  void setFrameRate(std::shared_ptr<OosVimba::Device> device, double value);
 
-  atomic<bool> bMulticast;
+  // -- SETTINGS ---------------------------------------------------------------
   atomic<bool> bReadOnly;
+  atomic<bool> bMulticast;
   atomic<int>  userSet;
-  bool bInited;
+  atomic<ofPixelFormat> desiredPixelFormat;
+  atomic<float> desiredFrameRate;
 
   // -- TOOLS ------------------------------------------------------------------
   int hexIdToIntId(string _value) const;
   string intIdToHexId(int _intId) const;
-
   string getUserSetString(int userSet) const;
-
-
 };

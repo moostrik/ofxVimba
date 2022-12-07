@@ -67,7 +67,7 @@ void ofxVimbaGrabber::close() {
   std::shared_ptr<std::thread> threadToKill;
   {
     std::lock_guard<std::mutex> lock(actionMutex);
-    std::queue<Action> emptyQueue;
+    std::deque<Action> emptyQueue;
     actionQueue.swap(emptyQueue);
     actionsRunning = false;
     actionThread.swap(threadToKill);
@@ -78,13 +78,23 @@ void ofxVimbaGrabber::close() {
   }
 }
 
-
 // -- ACTION -------------------------------------------------------------------
 
 void ofxVimbaGrabber::addAction(ActionType type, std::shared_ptr<OosVimba::Device> device) {
+  auto action = Action(type, device);
   std::lock_guard<std::mutex> lock(actionMutex);
-  actionQueue.push({type, device});
-  actionSignal.notify_one();
+
+  if (type == ActionType::Disconnect) {
+    actionQueue.clear();
+    actionQueue.push_back(action);
+    actionSignal.notify_one();
+    return;
+  }
+
+  if(find(actionQueue.begin(), actionQueue.end(), action) == actionQueue.end()) {
+    actionQueue.push_back(action);
+    actionSignal.notify_one();
+  }
 }
 
 void ofxVimbaGrabber::actionRunner() {
@@ -92,7 +102,7 @@ void ofxVimbaGrabber::actionRunner() {
   while (actionsRunning.load()) {
     if (!actionQueue.empty()) {
       auto action = actionQueue.front();
-      actionQueue.pop();
+      actionQueue.pop_front();
       lock.unlock();
 
       if (action.type == ActionType::Disconnect){
@@ -113,11 +123,13 @@ void ofxVimbaGrabber::actionRunner() {
       }
 
       if (action.type == ActionType::Configure){
-        stopStream();
-        configureDevice(action.device);
-        if (!startStream(action.device)){
-          closeDevice(action.device);
-          setActiveDevice(nullptr);
+        if (isEqualDevice(action.device, getActiveDevice())){
+          stopStream();
+          configureDevice(action.device);
+          if (!startStream(action.device)){
+            closeDevice(action.device);
+            setActiveDevice(nullptr);
+          }
         }
       }
       lock.lock();
@@ -164,13 +176,8 @@ void ofxVimbaGrabber::discoveryCallback(std::shared_ptr<OosVimba::Device> device
 }
 
 void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<OosVimba::Device> device) {
-  std::shared_ptr<OosVimba::Device> currentDevice = nullptr;
-  std::string id = "none";
-  {
-    std::lock_guard<std::mutex> lock(deviceMutex);
-    std::shared_ptr<OosVimba::Device> currentDevice = activeDevice;
-    id = deviceID;
-  }
+  std::shared_ptr<OosVimba::Device> currentDevice = getActiveDevice();
+  std::string id = getDeviceId();
   if (isEqualDevice(currentDevice, device)) {
     logger.warning("Discovered device is already active");
     return;
@@ -181,7 +188,6 @@ void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<OosVimba::Device> device)
 }
 
 void ofxVimbaGrabber::onDiscoveryLost(std::shared_ptr<OosVimba::Device> device) {
-
   std::shared_ptr<OosVimba::Device> currentDevice = getActiveDevice();
   if (!isEqualDevice(currentDevice, device)) return;
 
@@ -193,12 +199,11 @@ void ofxVimbaGrabber::onDiscoveryUpdate(std::shared_ptr<OosVimba::Device> device
   std::shared_ptr<OosVimba::Device> currentDevice = getActiveDevice();
   if (isEqualDevice(currentDevice, device)) {
     if (!(bReadOnly || device->isAvailable())) {
-      logger.notice("Discovery Update : Our access mode dropped, schedule a disconnect");
       onDiscoveryLost(device);
       return;
     }
   }
-  onDiscoveryFound(device);
+  if (device->isAvailable()) onDiscoveryFound(device);
 }
 
 // -- DEVICE -------------------------------------------------------------------
@@ -206,7 +211,7 @@ void ofxVimbaGrabber::onDiscoveryUpdate(std::shared_ptr<OosVimba::Device> device
 bool ofxVimbaGrabber::filterDevice(std::shared_ptr<OosVimba::Device> device, std::string id) {
   if (!device || SP_ISNULL(device->getHandle())) return false;
 
-  if (deviceID != OosVimba::DISCOVERY_ANY_ID && id != device->getId()) {
+  if (id != OosVimba::DISCOVERY_ANY_ID && id != device->getId()) {
     return false;
   }
 
@@ -255,6 +260,7 @@ void ofxVimbaGrabber::closeDevice(std::shared_ptr<OosVimba::Device> device) {
 }
 
 bool ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> device) {
+  if (bReadOnly) return true;
 
   device->run("GVSPAdjustPacketSize");
   VmbInt64_t GVSPPacketSize;
@@ -283,7 +289,6 @@ bool ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> device) 
   return true;
 }
 
-
 std::shared_ptr<OosVimba::Device> ofxVimbaGrabber::getActiveDevice() {
   std::lock_guard<std::mutex> lock(deviceMutex);
   return activeDevice;
@@ -295,7 +300,7 @@ void ofxVimbaGrabber::setActiveDevice(std::shared_ptr<OosVimba::Device> device) 
 }
 
 bool ofxVimbaGrabber::isEqualDevice(std::shared_ptr<OosVimba::Device> dev1, std::shared_ptr<OosVimba::Device> dev2) {
-  return dev1 && SP_ISEQUAL(dev1->getHandle(), dev2->getHandle());
+  return dev1 && dev2 && SP_ISEQUAL(dev1->getHandle(), dev2->getHandle());
 }
 
 

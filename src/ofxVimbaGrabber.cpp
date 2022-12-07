@@ -3,7 +3,6 @@
 using namespace ofxVimba;
 
 ofxVimbaGrabber::ofxVimbaGrabber() :
-  logger("ofxVimbaGrabber "),
   system(OosVimba::System::getInstance()),
   actionsRunning(false),
   deviceID(OosVimba::DISCOVERY_ANY_ID),
@@ -29,6 +28,8 @@ bool ofxVimbaGrabber::setup(int _w, int _h) {
 
   actionsRunning = true;
   actionThread = std::make_shared<std::thread>(std::bind(&ofxVimbaGrabber::actionRunner, this));
+
+  logger =std::make_shared<OosVimba::Logger>("ofxVimbaGrabber ");
 
   startDiscovery();
   bInited = true;
@@ -76,6 +77,53 @@ void ofxVimbaGrabber::close() {
     actionSignal.notify_one();
     if (threadToKill->joinable()) threadToKill->join();
   }
+}
+
+// -- SET ----------------------------------------------------------------------
+
+void ofxVimbaGrabber::setVerbose(bool bTalkToMe) {
+  if (bTalkToMe) logger->setLevel(OosVimba::VMB_LOG_VERBOSE);
+  else logger->setLevel(OosVimba::VMB_LOG_NOTICE);
+}
+
+void ofxVimbaGrabber::setDeviceID(string ID) {
+  if (ID == deviceID) return;
+  std::lock_guard<std::mutex> lock(deviceMutex);
+  deviceID = ID;
+  if (isInitialized()) addAction(ActionType::Disconnect, activeDevice);
+}
+
+void ofxVimbaGrabber::setReadOnly(bool value) {
+  if (value == bReadOnly.load()) return;
+  std::lock_guard<std::mutex> lock(deviceMutex);
+  bReadOnly.store(value);
+  if (isInitialized()) addAction(ActionType::Disconnect, activeDevice);
+}
+
+void ofxVimbaGrabber::setMulticast(bool value) {
+  if (value == bMulticast.load()) return;
+  std::lock_guard<std::mutex> lock(deviceMutex);
+  bMulticast.store(value);
+  if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
+}
+
+bool ofxVimbaGrabber::setPixelFormat(ofPixelFormat format) {
+  if (format == desiredPixelFormat) return true;
+  std::lock_guard<std::mutex> lock(deviceMutex);
+  desiredPixelFormat.store(format);
+  if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
+  return true;
+}
+
+void ofxVimbaGrabber::setLoadUserSet(int setToLoad) {
+  std::lock_guard<std::mutex> lock(deviceMutex);
+  userSet.store(setToLoad);
+  if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
+}
+
+void ofxVimbaGrabber::setDesiredFrameRate(int framerate) {
+  desiredFrameRate.store(framerate);
+  if (isInitialized() && isConnected()) setFrameRate(activeDevice, desiredFrameRate.load());
 }
 
 // -- ACTION -------------------------------------------------------------------
@@ -179,19 +227,19 @@ void ofxVimbaGrabber::onDiscoveryFound(std::shared_ptr<OosVimba::Device> device)
   std::shared_ptr<OosVimba::Device> currentDevice = getActiveDevice();
   std::string id = getDeviceId();
   if (isEqualDevice(currentDevice, device)) {
-    logger.warning("Discovered device is already active");
+    logger->warning("Discovered device is already active");
     return;
   }
   if (!filterDevice(device, id)) return;
   addAction(ActionType::Connect, device);
-  logger.verbose("Discovered Device " + device->getId());
+  logger->verbose("Discovered Device " + device->getId());
 }
 
 void ofxVimbaGrabber::onDiscoveryLost(std::shared_ptr<OosVimba::Device> device) {
   std::shared_ptr<OosVimba::Device> currentDevice = getActiveDevice();
   if (!isEqualDevice(currentDevice, device)) return;
 
-  logger.notice("Discovery Update: Device lost");
+  logger->notice("Discovery Update: Device lost");
   addAction(ActionType::Disconnect, device);
 }
 
@@ -218,7 +266,7 @@ bool ofxVimbaGrabber::filterDevice(std::shared_ptr<OosVimba::Device> device, std
   OosVimba::AccessMode requestedAccesMode = bReadOnly ? OosVimba::AccessModeRead : OosVimba::AccessModeMaster;
 
   if (device->getAvailableAccessMode() < requestedAccesMode) {
-    logger.warning("filterDevice " + device->getId() + " acces mode " + ofToString(requestedAccesMode) +
+    logger->warning("filterDevice " + device->getId() + " acces mode " + ofToString(requestedAccesMode) +
       " is not available. Availability is " + ofToString(device->getAvailableAccessMode()));
     return false;
   }
@@ -232,31 +280,31 @@ bool ofxVimbaGrabber::openDevice(std::shared_ptr<OosVimba::Device> device) {
   OosVimba::AccessMode requestedAccesMode = bReadOnly ? OosVimba::AccessModeRead : OosVimba::AccessModeMaster;
 
   if (!isAccessModeAvailable(requestedAccesMode, device->getAvailableAccessMode())) {
-    logger.warning("openDevice " + device->getId() + " acces mode " + ofToString(requestedAccesMode) +
+    logger->warning("openDevice " + device->getId() + " acces mode " + ofToString(requestedAccesMode) +
       " is not available. Availability is " + ofToString(device->getAvailableAccessMode()));
     return false;
   }
 
   if (!device->open(requestedAccesMode)) {
-    logger.warning("openDevice : unable to open" + device->getId() +" with acces mode " + ofToString(requestedAccesMode));
+    logger->warning("openDevice : unable to open" + device->getId() +" with acces mode " + ofToString(requestedAccesMode));
     return false;
   }
 
   // retain the current id
-  logger.setScope(device->getId());
+  logger->setScope(device->getId());
 
-  if (!bReadOnly) logger.verbose("Opened connection");
-  else logger.notice("Opened read only connection");
+  if (!bReadOnly) logger->verbose("Opened connection");
+  else logger->notice("Opened read only connection");
   return true;
 }
 
 void ofxVimbaGrabber::closeDevice(std::shared_ptr<OosVimba::Device> device) {
   if (device && device->isOpen()) {
     device->close();
-    if (!bReadOnly) logger.verbose("Closed connection");
-    else logger.verbose("Closed read only connection");
+    if (!bReadOnly) logger->verbose("Closed connection");
+    else logger->verbose("Closed read only connection");
   }
-  logger.clearScope();
+  logger->clearScope();
 }
 
 bool ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> device) {
@@ -265,7 +313,7 @@ bool ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> device) 
   device->run("GVSPAdjustPacketSize");
   VmbInt64_t GVSPPacketSize;
   device->get("GVSPPacketSize", GVSPPacketSize);
-  logger.verbose("Packet size set to " + ofToString(GVSPPacketSize));
+  logger->verbose("Packet size set to " + ofToString(GVSPPacketSize));
 
   device->set("MulticastEnable", bMulticast);
 
@@ -281,11 +329,11 @@ bool ofxVimbaGrabber::configureDevice(std::shared_ptr<OosVimba::Device> device) 
   device->get("PixelFormat", vmbPixelFormat);
   pixelFormat = ofxVimbaUtils::getOfPixelFormat(vmbPixelFormat);
 
-  if (pixelFormat < 0) logger.warning("pixel format set to " + ofToString(pixelFormat));
-  else if (pixelFormat != desiredPixelFormat) logger.notice("pixel format set to " + ofToString(pixelFormat));
+  if (pixelFormat < 0) logger->warning("pixel format set to " + ofToString(pixelFormat));
+  else if (pixelFormat != desiredPixelFormat) logger->notice("pixel format set to " + ofToString(pixelFormat));
 
   setFrameRate(device, desiredFrameRate.load());
-  logger.notice("Device Configured");
+  logger->notice("Device Configured");
   return true;
 }
 
@@ -316,7 +364,7 @@ void ofxVimbaGrabber::setFrameRate(std::shared_ptr<OosVimba::Device> device, dou
   framerate.store(fr);
 
   if (framerate != value) {
-    logger.notice("framerate set to " + ofToString(framerate));
+    logger->notice("framerate set to " + ofToString(framerate));
   }
 
 }
@@ -357,53 +405,6 @@ void ofxVimbaGrabber::streamFrameCallBack(const std::shared_ptr<OosVimba::Frame>
   receivedPixels.swap(newPixels);
 }
 
-// -- SET ----------------------------------------------------------------------
-
-void ofxVimbaGrabber::setVerbose(bool bTalkToMe) {
-  if (bTalkToMe) logger.setLevel(OosVimba::VMB_LOG_VERBOSE);
-  else logger.setLevel(OosVimba::VMB_LOG_NOTICE);
-}
-
-void ofxVimbaGrabber::setDeviceID(string ID) {
-  if (ID == deviceID) return;
-  std::lock_guard<std::mutex> lock(deviceMutex);
-  deviceID = ID;
-  if (isInitialized()) addAction(ActionType::Disconnect, activeDevice);
-}
-
-void ofxVimbaGrabber::setReadOnly(bool value) {
-  if (value == bReadOnly.load()) return;
-  std::lock_guard<std::mutex> lock(deviceMutex);
-  bReadOnly.store(value);
-  if (isInitialized()) addAction(ActionType::Disconnect, activeDevice);
-}
-
-void ofxVimbaGrabber::setMulticast(bool value) {
-  if (value == bMulticast.load()) return;
-  std::lock_guard<std::mutex> lock(deviceMutex);
-  bMulticast.store(value);
-  if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
-}
-
-bool ofxVimbaGrabber::setPixelFormat(ofPixelFormat format) {
-  if (format == desiredPixelFormat) return true;
-  std::lock_guard<std::mutex> lock(deviceMutex);
-  desiredPixelFormat.store(format);
-  if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
-  return true;
-}
-
-void ofxVimbaGrabber::setLoadUserSet(int setToLoad) {
-  std::lock_guard<std::mutex> lock(deviceMutex);
-  userSet.store(setToLoad);
-  if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
-}
-
-void ofxVimbaGrabber::setDesiredFrameRate(int framerate) {
-  desiredFrameRate.store(framerate);
-  if (isInitialized() && isConnected()) setFrameRate(activeDevice, desiredFrameRate.load());
-}
-
 // -- LIST ---------------------------------------------------------------------
 
 std::vector<ofVideoDevice> ofxVimbaGrabber::listDevices() const {
@@ -414,7 +415,7 @@ std::vector<ofVideoDevice> ofxVimbaGrabber::listDevices() const {
 
 void ofxVimbaGrabber::listCameras(bool _verbose) {
   if (!system->isAvailable()) {
-    logger.error(
+    logger->error(
         "Failed to retrieve current camera list, system is unavailable");
     return;
   }
@@ -423,7 +424,7 @@ void ofxVimbaGrabber::listCameras(bool _verbose) {
   auto err = system->getAPI().GetCameras(cameras);
 
   if (err != VmbErrorSuccess) {
-    logger.error("Failed to retrieve current camera list");
+    logger->error("Failed to retrieve current camera list");
     return;
   }
 

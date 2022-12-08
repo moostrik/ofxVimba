@@ -4,8 +4,8 @@
 void ofApp::setup() {
   selectDevice = 0;
   toggleReadOnly = false;
-  toggleMultiCast = true;
-  togglePixelMode = false;
+  toggleMultiCast = false;
+  toggleMono = false;
   selectUserSet = 1;
   vimbaGrabber = std::make_shared<ofxVimbaVideoGrabber>();
 
@@ -21,7 +21,7 @@ void ofApp::setup() {
   vimbaGrabber->setMulticast(toggleMultiCast);
   vimbaGrabber->setLoadUserSet(selectUserSet);
 
-  ofPixelFormat format = togglePixelMode? OF_PIXELS_MONO: OF_PIXELS_RGB;
+  ofPixelFormat format = toggleMono? OF_PIXELS_MONO: OF_PIXELS_RGB;
   grabber.setPixelFormat(format);  // or vimbaGrabber->setPixelFormat(OF_PIXELS_RGB);
   grabber.setDesiredFrameRate(30);        // or vimbaGrabber->setDesiredFrameRate(30);
   grabber.setup(ofGetWindowWidth(), ofGetWindowHeight(), true);
@@ -29,8 +29,8 @@ void ofApp::setup() {
   text = "Press Key: \n"
          "'d' to select next device \n"
          "'r' to toggle readonly \n"
-         "'m' to toggle multicast \n"
-         "'p' to toggle pixelmode \n"
+         "'c' to toggle multicast \n"
+         "'m' to toggle mono \n"
          "'l' to load next userset";
 }
 
@@ -90,17 +90,17 @@ void ofApp::keyReleased(ofKeyEventArgs& key) {
     toggleReadOnly = !vimbaGrabber->isReadOnly();
     vimbaGrabber->setReadOnly(toggleReadOnly);
     break;
-  case 'm':
+  case 'c':
     toggleMultiCast = !vimbaGrabber->isMultiCast();
     vimbaGrabber->setMulticast(toggleMultiCast);
+    break;
+  case 'm':
+    toggleMono = !toggleMono;
+    vimbaGrabber->setPixelFormat(toggleMono? OF_PIXELS_MONO: OF_PIXELS_RGB);
     break;
   case 'l':
     selectUserSet = (vimbaGrabber->getUserSet() + 1) % 3;
     vimbaGrabber->setLoadUserSet(selectUserSet);
-    break;
-  case 'p':
-    togglePixelMode = !togglePixelMode;
-    vimbaGrabber->setPixelFormat(togglePixelMode? OF_PIXELS_MONO: OF_PIXELS_RGB);
     break;
   default:
     break;

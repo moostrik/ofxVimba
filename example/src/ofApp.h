@@ -20,7 +20,7 @@ class ofApp : public ofBaseApp {
   int   selectDevice;
   bool  toggleReadOnly;
   bool  toggleMultiCast;
-  bool  togglePixelMode;
+  bool  toggleMono;
   int   selectUserSet;
 
   string text;

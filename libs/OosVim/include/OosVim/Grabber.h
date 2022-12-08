@@ -1,13 +1,16 @@
 #pragma once
 
+#include <algorithm>
 #include <atomic>
+#include <condition_variable>
 #include <deque>
+#include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
 
 #include "OosVimba.h"
-
-//#define VIMBA_DEV_MODE
 
 namespace OosVim {
 

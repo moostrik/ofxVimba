@@ -351,9 +351,9 @@ bool Grabber::isEqualDevice(std::shared_ptr<OosVim::Device> dev1, std::shared_pt
 void Grabber::setFrameRate(std::shared_ptr<OosVim::Device> device, double value) {
   if (!device || !device->isOpen() || !device->isMaster()) return;
 
-  double min, max;
-  device->getRange("AcquisitionFrameRateAbs", min, max);
-  framerate.store(min(max(value, min + 0.1), max - 0.1));
+  double minValue, maxValue;
+  device->getRange("AcquisitionFrameRateAbs", minValue, maxValue);
+  framerate.store(std::min(std::max(value, minValue + 0.1), maxValue - 0.1));
   device->set("AcquisitionFrameRateAbs", framerate);
   double fr;
   device->get("AcquisitionFrameRateAbs", fr);

@@ -32,7 +32,7 @@ enum vmbLogLevel : short {
   VMB_LOG_NONE
 };
 
-static const std::string LOGGER_PREFIX_START = "[OosVimba";
+static const std::string LOGGER_PREFIX_START = "[OosVim";
 static const std::string LOGGER_PREFIX_SCOPE = "::";
 static const std::string LOGGER_PREFIX_END = "] ";
 static const std::string LOGGER_EMPTY = "";

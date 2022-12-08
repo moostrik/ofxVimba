@@ -9,7 +9,7 @@ Grabber::Grabber() :
   stream(nullptr),
   logger(std::make_shared<OosVim::Logger>("Grabber ")),
 //  pixels(std::make_shared<ofPixels>()),
-  pixelFormat(VmbPixelFormatLast),
+  pixelFormat(""),
   width(0), height(0),
   bNewFrame(false),
   bResolutionChanged(false),
@@ -19,25 +19,37 @@ Grabber::Grabber() :
   bReadOnly(false),
   bMulticast(false),
   userSet(-1),
-  desiredPixelFormat(VmbPixelFormatLast),
+  desiredPixelFormat("BGR8Packed"),
   desiredFrameRate(OosVim::MAX_FRAMERATE),
   framerate(0),
   deviceList(createDeviceList())
-{ }
-
-bool Grabber::setup(int _w, int _h) {
-  if (bInited) return true;
-
+{
+  if (!system->isAvailable()) return;
   actionsRunning = true;
   actionThread = std::make_shared<std::thread>(std::bind(&Grabber::actionRunner, this));
-
   startDiscovery();
   bInited = true;
-  return true;
+}
+
+Grabber::~Grabber() {
+  stopDiscovery();
+
+  std::shared_ptr<std::thread> threadToKill;
+  {
+    std::lock_guard<std::mutex> lock(actionMutex);
+    std::deque<Action> emptyQueue;
+    actionQueue.swap(emptyQueue);
+    actionsRunning = false;
+    actionThread.swap(threadToKill);
+  }
+  if (threadToKill) {
+    actionSignal.notify_one();
+    if (threadToKill->joinable()) threadToKill->join();
+  }
 }
 
 /*
-void Grabber::update() {
+void Grabber::updateFrame() {
   bNewFrame = false;
   bResolutionChanged = false;
   bPixelFormatChanged = false;
@@ -62,23 +74,6 @@ void Grabber::update() {
   }
 }
 */
-void Grabber::close() {
-  stopDiscovery();
-//  if(activeDevice) closeDevice(activeDevice);
-
-  std::shared_ptr<std::thread> threadToKill;
-  {
-    std::lock_guard<std::mutex> lock(actionMutex);
-    std::deque<Action> emptyQueue;
-    actionQueue.swap(emptyQueue);
-    actionsRunning = false;
-    actionThread.swap(threadToKill);
-  }
-  if (threadToKill) {
-    actionSignal.notify_one();
-    if (threadToKill->joinable()) threadToKill->join();
-  }
-}
 
 // -- SET ----------------------------------------------------------------------
 
@@ -108,10 +103,10 @@ void Grabber::setMulticast(bool value) {
   if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
 }
 
-bool Grabber::setPixelFormat(VmbPixelFormatType format) {
+bool Grabber::setDesiredPixelFormat(std::string format) {
   if (format == desiredPixelFormat) return true;
   std::lock_guard<std::mutex> lock(deviceMutex);
-  desiredPixelFormat.store(format);
+  desiredPixelFormat = format;
   if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
   return true;
 }
@@ -326,12 +321,13 @@ bool Grabber::configureDevice(std::shared_ptr<OosVim::Device> device) {
 
   //device->set("ChunkModeActive", true);
 
-  if (desiredPixelFormat >= 0) device->set("PixelFormat", desiredPixelFormat);
-  VmbPixelFormatType currentPixelFormat;
+  auto desiredFormat = getDesiredPixelFormat();
+  device->set("PixelFormat", desiredFormat);
+  std::string currentPixelFormat;
   device->get("PixelFormat", currentPixelFormat);
-  pixelFormat.store(currentPixelFormat);
 
-  if (pixelFormat != desiredPixelFormat) logger->notice("pixel format set to " + std::to_string(pixelFormat));
+  if (desiredFormat != currentPixelFormat)
+    logger->notice("Desired pixel format not set, format set to " + currentPixelFormat);
 
   setFrameRate(device, desiredFrameRate.load());
   logger->notice("Device Configured");
@@ -364,7 +360,7 @@ void Grabber::setFrameRate(std::shared_ptr<OosVim::Device> device, double value)
   framerate.store(fr);
 
   if (framerate != value) {
-    logger->notice("framerate set to " + std::to_string(framerate));
+    logger->notice("Desired framerate not set, framerate set to " + std::to_string(framerate));
   }
 
 }

@@ -15,16 +15,15 @@ class Grabber {
 // -- SET --------------------------------------------------------------------
 public:
  Grabber();
- virtual ~Grabber() { Grabber::close(); }
+ virtual ~Grabber();
 
- bool setup(int w = 0, int h = 0);
- virtual void update() = 0;
- void close();
+ virtual void updateFrame() = 0;
+
 
  // -- SET --------------------------------------------------------------------
   void setVerbose(bool bTalkToMe);
   void setDesiredFrameRate(int framerate);
-  bool setPixelFormat(VmbPixelFormatType format);
+  bool setDesiredPixelFormat(std::string format);
   void setDeviceID(int simpleID) { setDeviceID(intIdToHexId(simpleID)); }
   void setDeviceID(std::string ID);
   void setMulticast(bool value);
@@ -49,13 +48,13 @@ public:
   float getFrameRate()        const { return framerate.load(); }
   std::string getDeviceId()        { std::lock_guard<std::mutex> lock(deviceMutex); return deviceID; };
 
-  VmbPixelFormatType getPixelFormat()  const { return pixelFormat; }
+  std::string getPixelFormat()  const { return pixelFormat; }
 //  const ofPixels& getPixels()     const { return *pixels; }
 //  ofPixels &getPixels()           { return *pixels; }
 
   Device_List_t listDevices() const;
 
- private:
+ protected:
 
   // -- CORE -------------------------------------------------------------------
   bool bInited;
@@ -66,7 +65,7 @@ public:
 
   // -- FRAME ------------------------------------------------------------------
 //  std::shared_ptr<ofPixels> pixels;
-  std::atomic<VmbPixelFormatType> pixelFormat;
+  std::string pixelFormat;
   int width;
   int height;
   bool bNewFrame;
@@ -103,7 +102,8 @@ public:
   std::atomic<bool> bReadOnly;
   std::atomic<bool> bMulticast;
   std::atomic<int>  userSet;
-  std::atomic<VmbPixelFormatType> desiredPixelFormat;
+  std::string desiredPixelFormat;
+  std::string getDesiredPixelFormat() { std::lock_guard<std::mutex> lock(deviceMutex); return desiredPixelFormat; };
   std::mutex deviceMutex;
   std::shared_ptr<OosVim::Device> activeDevice;
   bool filterDevice(std::shared_ptr<OosVim::Device>     device, std::string id);

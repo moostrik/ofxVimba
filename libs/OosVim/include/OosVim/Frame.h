@@ -5,7 +5,7 @@
 #include "Common.h"
 #include "Device.h"
 
-namespace OosVimba {
+namespace OosVim {
 class Stream;
 class Frame {
   friend Stream;

@@ -13,7 +13,7 @@
 #include "Frame.h"
 #include "Logger.h"
 
-namespace OosVimba {
+namespace OosVim {
 static const uint64_t CAMERA_NO_TIMEOUT = 0;
 static const uint64_t CAMERA_HEALTH_TIMEOUT = 100;
 static const uint64_t CAMERA_STALLED_TIMEOUT = 1500;

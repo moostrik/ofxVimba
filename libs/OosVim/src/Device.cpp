@@ -1,6 +1,6 @@
 #include "OosVim/Device.h"
 
-using namespace OosVimba;
+using namespace OosVim;
 
 Device::Device(AVT::VmbAPI::CameraPtr handle)
     : logger("Device "), system(System::getInstance()), handle(handle) {

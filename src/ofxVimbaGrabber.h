@@ -58,10 +58,10 @@ public:
 
   // -- CORE -------------------------------------------------------------------
   bool bInited;
-  std::shared_ptr<OosVimba::System>     system;
-  std::shared_ptr<OosVimba::Discovery>  discovery;
-  std::shared_ptr<OosVimba::Stream>     stream;
-  std::shared_ptr<OosVimba::Logger>     logger;
+  std::shared_ptr<OosVim::System>     system;
+  std::shared_ptr<OosVim::Discovery>  discovery;
+  std::shared_ptr<OosVim::Stream>     stream;
+  std::shared_ptr<OosVim::Logger>     logger;
 
   // -- FRAME ------------------------------------------------------------------
   std::shared_ptr<ofPixels> pixels;
@@ -76,8 +76,8 @@ public:
   enum class ActionType { Connect, Disconnect, Configure };
   struct Action {
     ActionType type;
-    std::shared_ptr<OosVimba::Device> device;
-    Action(ActionType _type, std::shared_ptr<OosVimba::Device> _device) : type(_type), device(_device) {};
+    std::shared_ptr<OosVim::Device> device;
+    Action(ActionType _type, std::shared_ptr<OosVim::Device> _device) : type(_type), device(_device) {};
     bool operator == (Action action) { return action.type == type && action.device == device; }
   };
 
@@ -86,16 +86,16 @@ public:
   std::condition_variable actionSignal;
   std::shared_ptr<std::thread> actionThread;
   std::atomic<bool> actionsRunning;
-  void addAction(ActionType type, std::shared_ptr<OosVimba::Device> device = nullptr);
+  void addAction(ActionType type, std::shared_ptr<OosVim::Device> device = nullptr);
   void actionRunner();
 
   // -- DISCOVERY --------------------------------------------------------------
   void startDiscovery();
   void stopDiscovery();
-  void discoveryCallback(std::shared_ptr<OosVimba::Device>  device, const OosVimba::DiscoveryTrigger trigger);
-  void onDiscoveryFound(std::shared_ptr<OosVimba::Device>   device);
-  void onDiscoveryUpdate(std::shared_ptr<OosVimba::Device>  device);
-  void onDiscoveryLost(std::shared_ptr<OosVimba::Device>    device);
+  void discoveryCallback(std::shared_ptr<OosVim::Device>  device, const OosVim::DiscoveryTrigger trigger);
+  void onDiscoveryFound(std::shared_ptr<OosVim::Device>   device);
+  void onDiscoveryUpdate(std::shared_ptr<OosVim::Device>  device);
+  void onDiscoveryLost(std::shared_ptr<OosVim::Device>    device);
 
   // -- DEVICE -----------------------------------------------------------------
   string deviceID;
@@ -104,26 +104,26 @@ public:
   atomic<int>  userSet;
   atomic<ofPixelFormat> desiredPixelFormat;
   std::mutex deviceMutex;
-  std::shared_ptr<OosVimba::Device> activeDevice;
-  bool filterDevice(std::shared_ptr<OosVimba::Device>     device, std::string id);
-  bool openDevice(std::shared_ptr<OosVimba::Device>       device);
-  void closeDevice(std::shared_ptr<OosVimba::Device>      device);
-  bool configureDevice(std::shared_ptr<OosVimba::Device>  device);
-  bool isEqualDevice(std::shared_ptr<OosVimba::Device> dev1, std::shared_ptr<OosVimba::Device> dev2);
-  std::shared_ptr<OosVimba::Device> getActiveDevice();
-  void setActiveDevice(std::shared_ptr<OosVimba::Device> device);
+  std::shared_ptr<OosVim::Device> activeDevice;
+  bool filterDevice(std::shared_ptr<OosVim::Device>     device, std::string id);
+  bool openDevice(std::shared_ptr<OosVim::Device>       device);
+  void closeDevice(std::shared_ptr<OosVim::Device>      device);
+  bool configureDevice(std::shared_ptr<OosVim::Device>  device);
+  bool isEqualDevice(std::shared_ptr<OosVim::Device> dev1, std::shared_ptr<OosVim::Device> dev2);
+  std::shared_ptr<OosVim::Device> getActiveDevice();
+  void setActiveDevice(std::shared_ptr<OosVim::Device> device);
 
   // -- STREAM -----------------------------------------------------------------
-  bool startStream(std::shared_ptr<OosVimba::Device> device);
+  bool startStream(std::shared_ptr<OosVim::Device> device);
   void stopStream();
   std::mutex frameMutex;
-  void streamFrameCallBack(const std::shared_ptr<OosVimba::Frame> frame);
+  void streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame);
   std::shared_ptr<ofPixels> receivedPixels;
 
   // -- FRAMERATE --------------------------------------------------------------
   atomic<float> desiredFrameRate;
   atomic<float> framerate;
-  void setFrameRate(std::shared_ptr<OosVimba::Device> device, double value);
+  void setFrameRate(std::shared_ptr<OosVim::Device> device, double value);
 
   // -- LIST -------------------------------------------------------------------
   mutable std::mutex listMutex;

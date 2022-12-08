@@ -1,23 +1,23 @@
 #include "OosVim/Common.h"
 
-using namespace OosVimba;
+using namespace OosVim;
 
-bool OosVimba::isAccessModeAvailable(const AccessMode &requested, const VmbAccessModeType &available) {
+bool OosVim::isAccessModeAvailable(const AccessMode &requested, const VmbAccessModeType &available) {
   auto mode = translateAccessMode(available);
   return isAccessModeAvailable(requested, mode);
 };
 
-bool OosVimba::isAccessModeAvailable(const AccessMode &requested, const AccessMode &available) {
+bool OosVim::isAccessModeAvailable(const AccessMode &requested, const AccessMode &available) {
   return available >= requested;
 };
 
-AccessMode OosVimba::translateAccessMode(const VmbAccessModeType &modes) {
+AccessMode OosVim::translateAccessMode(const VmbAccessModeType &modes) {
   if (modes & VmbAccessModeFull) return AccessModeMaster;
   if (modes & VmbAccessModeRead) return AccessModeRead;
   return AccessModeNone;
 };
 
-VmbAccessModeType OosVimba::translateAccessMode(const AccessMode &mode) {
+VmbAccessModeType OosVim::translateAccessMode(const AccessMode &mode) {
   if (mode == AccessModeMaster) return VmbAccessModeFull;
   if (mode == AccessModeRead) return VmbAccessModeRead;
   return VmbAccessModeNone;
@@ -25,7 +25,7 @@ VmbAccessModeType OosVimba::translateAccessMode(const AccessMode &mode) {
 
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long long &value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long long &value) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -34,7 +34,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long long &val
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr& feature, unsigned long long& value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr& feature, unsigned long long& value) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -43,7 +43,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr& feature, unsigned long 
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long &value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long &value) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -52,7 +52,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, long &value) {
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &value) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -61,7 +61,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned long 
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -70,7 +70,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, int &value) {
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &value) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -79,7 +79,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, bool &value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr &feature, bool &value) {
   if (SP_ISNULL(feature)) return false;
   bool tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -88,7 +88,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, bool &value) {
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, double &value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr &feature, double &value) {
   if (SP_ISNULL(feature)) return false;
   double tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -97,7 +97,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, double &value)
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, float &value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr &feature, float &value) {
   if (SP_ISNULL(feature)) return false;
   double tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -106,7 +106,7 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, float &value) 
 }
 
 template <>
-bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, std::string &value) {
+bool OosVim::getFeature(const AVT::VmbAPI::FeaturePtr &feature, std::string &value) {
   if (SP_ISNULL(feature)) return false;
   std::string tmp;
   if (feature->GetValue(tmp) != VmbErrorSuccess) return false;
@@ -115,67 +115,67 @@ bool OosVimba::getFeature(const AVT::VmbAPI::FeaturePtr &feature, std::string &v
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const long long &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const long long &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(static_cast<VmbInt64_t>(value)) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const unsigned long long &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const unsigned long long &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(static_cast<VmbInt64_t>(value)) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const long &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const long &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(static_cast<VmbInt64_t>(value)) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const unsigned long &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const unsigned long &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(static_cast<VmbInt64_t>(value)) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const int &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const int &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(static_cast<long long>(value)) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const unsigned int &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const unsigned int &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(static_cast<VmbInt64_t>(value)) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const bool &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const bool &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(value) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const double &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const double &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(value) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const float &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const float &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(static_cast<double>(value)) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const std::string &value) {
+bool OosVim::setFeature(const AVT::VmbAPI::FeaturePtr &feature, const std::string &value) {
   if (SP_ISNULL(feature)) return false;
   return feature->SetValue(value.c_str()) == VmbErrorSuccess;
 }
 
 template <>
-bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long long &min,  long long &max) {
+bool OosVim::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long long &min,  long long &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -186,7 +186,7 @@ bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long long
 }
 
 template <>
-bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long long &min, unsigned long long &max) {
+bool OosVim::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long long &min, unsigned long long &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -197,7 +197,7 @@ bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned 
 }
 
 template <>
-bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long &min,  long &max) {
+bool OosVim::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long &min,  long &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -208,7 +208,7 @@ bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, long &min
 }
 
 template <>
-bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &min, unsigned long &max) {
+bool OosVim::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned long &min, unsigned long &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -219,7 +219,7 @@ bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned 
 }
 
 template <>
-bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, int &min, int &max) {
+bool OosVim::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, int &min, int &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -230,7 +230,7 @@ bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, int &min,
 }
 
 template <>
-bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &min, unsigned int &max) {
+bool OosVim::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned int &min, unsigned int &max) {
   if (SP_ISNULL(feature)) return false;
   VmbInt64_t vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -241,7 +241,7 @@ bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, unsigned 
 }
 
 template <>
-bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, double &min,  double &max) {
+bool OosVim::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, double &min,  double &max) {
   if (SP_ISNULL(feature)) return false;
   double vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -252,7 +252,7 @@ bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, double &m
 }
 
 template <>
-bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, float &min, float &max) {
+bool OosVim::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, float &min, float &max) {
   if (SP_ISNULL(feature)) return false;
   double vMin, vMax;
   auto error = feature->GetRange(vMin, vMax);
@@ -263,13 +263,13 @@ bool OosVimba::getFeatureRange(const AVT::VmbAPI::FeaturePtr &feature, float &mi
 }
 
 template <>
-bool OosVimba::getOptions(const AVT::VmbAPI::FeaturePtr &feature, std::vector<std::string>& options) {
+bool OosVim::getOptions(const AVT::VmbAPI::FeaturePtr &feature, std::vector<std::string>& options) {
   if (feature->GetValues(options) != VmbErrorSuccess) return false;
   return true;
 }
 
 template <>
-bool OosVimba::isOptionAvailable(const AVT::VmbAPI::FeaturePtr &feature, const std::string& option) {
+bool OosVim::isOptionAvailable(const AVT::VmbAPI::FeaturePtr &feature, const std::string& option) {
   bool isAvailable = false;
   auto error = feature->IsValueAvailable(option.c_str(), isAvailable);
   if (error != VmbErrorSuccess) return false;

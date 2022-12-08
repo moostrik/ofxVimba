@@ -21,7 +21,7 @@
     return log(level, mod, msg, err);                                     \
   }
 
-namespace OosVimba {
+namespace OosVim {
 
 enum vmbLogLevel : short {
   VMB_LOG_VERBOSE,

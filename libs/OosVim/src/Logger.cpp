@@ -1,6 +1,6 @@
 #include "OosVim/Logger.h"
 
-using namespace OosVimba;
+using namespace OosVim;
 
 static vmbLogLevel currentLogLevel = VMB_LOG_NOTICE;
 

@@ -6,7 +6,7 @@
 #include "Logger.h"
 #include "System.h"
 
-namespace OosVimba {
+namespace OosVim {
 
 class Device {
  public:

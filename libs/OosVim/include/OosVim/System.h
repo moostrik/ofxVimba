@@ -8,7 +8,7 @@
 
 #include "Logger.h"
 
-namespace OosVimba {
+namespace OosVim {
 
 struct Version {
   bool valid = false;

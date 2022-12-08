@@ -5,7 +5,7 @@
 #include <iostream>
 #include "VimbaCPP/Include/VimbaCPP.h"
 
-namespace OosVimba {
+namespace OosVim {
 
 static const float MAX_FRAMERATE = 1000;
 

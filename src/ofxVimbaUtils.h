@@ -3,8 +3,6 @@
 #include "ofMain.h"
 #include "VimbaCPP/Include/VimbaCPP.h"
 
-namespace ofxVimba {
-
 class ofxVimbaUtils {
 public:
 
@@ -56,4 +54,4 @@ static inline ofPixelFormat getOfPixelFormat(string format) {
 }
 
 };
-}
+

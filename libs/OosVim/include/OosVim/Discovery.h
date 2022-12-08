@@ -10,7 +10,7 @@
 #include "Logger.h"
 #include "System.h"
 
-namespace OosVimba {
+namespace OosVim {
 static const std::string DISCOVERY_ANY_ID = "";
 
 enum DiscoveryTrigger {

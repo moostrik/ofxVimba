@@ -1,6 +1,6 @@
 #include "OosVim/Discovery.h"
 
-using namespace OosVimba;
+using namespace OosVim;
 
 Discovery::Discovery() : logger("Discovery "), system(System::getInstance()){};
 Discovery::~Discovery() { stop(); }

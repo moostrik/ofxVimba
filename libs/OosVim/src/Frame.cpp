@@ -1,6 +1,6 @@
 #include "OosVim/Frame.h"
 
-using namespace OosVimba;
+using namespace OosVim;
 
 Frame::Frame(std::shared_ptr<Device>&_device) :
   device(_device),

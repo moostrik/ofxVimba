@@ -353,7 +353,7 @@ void Grabber::setFrameRate(std::shared_ptr<OosVim::Device> device, double value)
 
   double minValue, maxValue;
   device->getRange("AcquisitionFrameRateAbs", minValue, maxValue);
-  framerate.store(std::min(std::max(value, minValue + 0.1), maxValue - 0.1));
+  framerate.store((std::min)((std::max)(value, minValue + 0.1), maxValue - 0.1));
   device->set("AcquisitionFrameRateAbs", framerate);
   double fr;
   device->get("AcquisitionFrameRateAbs", fr);

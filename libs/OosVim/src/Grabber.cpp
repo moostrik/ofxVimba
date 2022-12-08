@@ -112,12 +112,14 @@ bool Grabber::setDesiredPixelFormat(std::string format) {
 }
 
 void Grabber::setLoadUserSet(int setToLoad) {
+  if (setToLoad == userSet) return;
   std::lock_guard<std::mutex> lock(deviceMutex);
   userSet.store(setToLoad);
   if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
 }
 
 void Grabber::setDesiredFrameRate(int framerate) {
+  if (framerate == desiredFrameRate) return;
   desiredFrameRate.store(framerate);
   if (isInitialized() && isConnected()) setFrameRate(activeDevice, desiredFrameRate.load());
 }

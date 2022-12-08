@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <deque>
 #include <memory>
 #include <string>
 
@@ -17,7 +18,7 @@ public:
  virtual ~Grabber() { Grabber::close(); }
 
  bool setup(int w = 0, int h = 0);
- void update();
+ virtual void update() = 0;
  void close();
 
  // -- SET --------------------------------------------------------------------
@@ -46,13 +47,13 @@ public:
   float getWidth()            const { return width; }
   float getHeight()           const { return height; }
   float getFrameRate()        const { return framerate.load(); }
-  string getDeviceId()        { std::lock_guard<std::mutex> lock(deviceMutex); return deviceID; };
+  std::string getDeviceId()        { std::lock_guard<std::mutex> lock(deviceMutex); return deviceID; };
 
   VmbPixelFormatType getPixelFormat()  const { return pixelFormat; }
 //  const ofPixels& getPixels()     const { return *pixels; }
 //  ofPixels &getPixels()           { return *pixels; }
 
-  std::vector<ofVideoDevice> listDevices() const;
+  Device_List_t listDevices() const;
 
  private:
 
@@ -65,7 +66,7 @@ public:
 
   // -- FRAME ------------------------------------------------------------------
 //  std::shared_ptr<ofPixels> pixels;
-  VmbPixelFormatType pixelFormat;
+  std::atomic<VmbPixelFormatType> pixelFormat;
   int width;
   int height;
   bool bNewFrame;
@@ -99,10 +100,10 @@ public:
 
   // -- DEVICE -----------------------------------------------------------------
   std::string deviceID;
-  atomic<bool> bReadOnly;
-  atomic<bool> bMulticast;
-  atomic<int>  userSet;
-  atomic<ofPixelFormat> desiredPixelFormat;
+  std::atomic<bool> bReadOnly;
+  std::atomic<bool> bMulticast;
+  std::atomic<int>  userSet;
+  std::atomic<VmbPixelFormatType> desiredPixelFormat;
   std::mutex deviceMutex;
   std::shared_ptr<OosVimba::Device> activeDevice;
   bool filterDevice(std::shared_ptr<OosVimba::Device>     device, std::string id);
@@ -121,21 +122,21 @@ public:
 //  std::shared_ptr<ofPixels> receivedPixels;
 
   // -- FRAMERATE --------------------------------------------------------------
-  atomic<float> desiredFrameRate;
-  atomic<float> framerate;
+  std::atomic<float> desiredFrameRate;
+  std::atomic<float> framerate;
   void setFrameRate(std::shared_ptr<OosVimba::Device> device, double value);
 
   // -- LIST -------------------------------------------------------------------
   mutable std::mutex listMutex;
-  std::vector<ofVideoDevice> deviceList;
-  std::vector<ofVideoDevice> getDeviceList() const;
+  Device_List_t deviceList;
+  Device_List_t getDeviceList() const;
   void updateDeviceList();
-  std::vector<ofVideoDevice> createDeviceList();
-  void printDeviceList(std::vector<ofVideoDevice> dList) const;
-  std::string createCameraString(std::vector<ofVideoDevice> dList) const;
+  Device_List_t createDeviceList();
+  void printDeviceList(Device_List_t dList) const;
+  std::string createCameraString(Device_List_t dList) const;
 
   // -- TOOLS ------------------------------------------------------------------
-  static int hexIdToIntId(string _value);
+  static int hexIdToIntId(std::string _value);
   static std::string intIdToHexId(int _intId);
   static std::string getUserSetString(int userSet);
 };

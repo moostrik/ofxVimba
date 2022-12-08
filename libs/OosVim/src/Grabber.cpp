@@ -19,7 +19,7 @@ Grabber::Grabber() :
   bReadOnly(false),
   bMulticast(false),
   userSet(-1),
-  desiredPixelFormat(OF_PIXELS_NATIVE),
+  desiredPixelFormat(VmbPixelFormatLast),
   desiredFrameRate(OosVimba::MAX_FRAMERATE),
   framerate(0),
   deviceList(createDeviceList())
@@ -108,7 +108,7 @@ void Grabber::setMulticast(bool value) {
   if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
 }
 
-bool Grabber::setPixelFormat(ofPixelFormat format) {
+bool Grabber::setPixelFormat(VmbPixelFormatType format) {
   if (format == desiredPixelFormat) return true;
   std::lock_guard<std::mutex> lock(deviceMutex);
   desiredPixelFormat.store(format);
@@ -268,8 +268,8 @@ bool Grabber::filterDevice(std::shared_ptr<OosVimba::Device> device, std::string
   OosVimba::AccessMode requestedAccesMode = bReadOnly ? OosVimba::AccessModeRead : OosVimba::AccessModeMaster;
 
   if (device->getAvailableAccessMode() < requestedAccesMode) {
-    logger->warning("filterDevice " + device->getId() + " acces mode " + ofToString(requestedAccesMode) +
-      " is not available. Availability is " + ofToString(device->getAvailableAccessMode()));
+    logger->warning("filterDevice " + device->getId() + " acces mode " + std::to_string(requestedAccesMode) +
+      " is not available. Availability is " + std::to_string(device->getAvailableAccessMode()));
     return false;
   }
 
@@ -282,13 +282,13 @@ bool Grabber::openDevice(std::shared_ptr<OosVimba::Device> device) {
   OosVimba::AccessMode requestedAccesMode = bReadOnly ? OosVimba::AccessModeRead : OosVimba::AccessModeMaster;
 
   if (!isAccessModeAvailable(requestedAccesMode, device->getAvailableAccessMode())) {
-    logger->warning("openDevice " + device->getId() + " acces mode " + ofToString(requestedAccesMode) +
-      " is not available. Availability is " + ofToString(device->getAvailableAccessMode()));
+    logger->warning("openDevice " + device->getId() + " acces mode " + std::to_string(requestedAccesMode) +
+      " is not available. Availability is " + std::to_string(device->getAvailableAccessMode()));
     return false;
   }
 
   if (!device->open(requestedAccesMode)) {
-    logger->warning("openDevice : unable to open" + device->getId() +" with acces mode " + ofToString(requestedAccesMode));
+    logger->warning("openDevice : unable to open" + device->getId() +" with acces mode " + std::to_string(requestedAccesMode));
     return false;
   }
 
@@ -315,7 +315,7 @@ bool Grabber::configureDevice(std::shared_ptr<OosVimba::Device> device) {
   device->run("GVSPAdjustPacketSize");
   VmbInt64_t GVSPPacketSize;
   device->get("GVSPPacketSize", GVSPPacketSize);
-  logger->verbose("Packet size set to " + ofToString(GVSPPacketSize));
+  logger->verbose("Packet size set to " + std::to_string(GVSPPacketSize));
 
   device->set("MulticastEnable", bMulticast);
 
@@ -326,13 +326,12 @@ bool Grabber::configureDevice(std::shared_ptr<OosVimba::Device> device) {
 
   //device->set("ChunkModeActive", true);
 
-  if (desiredPixelFormat >= 0) device->set("PixelFormat", ofxVimbaUtils::getVimbaPixelFormat(desiredPixelFormat));
-  std::string vmbPixelFormat;
-  device->get("PixelFormat", vmbPixelFormat);
-  pixelFormat = ofxVimbaUtils::getOfPixelFormat(vmbPixelFormat);
+  if (desiredPixelFormat >= 0) device->set("PixelFormat", desiredPixelFormat);
+  VmbPixelFormatType currentPixelFormat;
+  device->get("PixelFormat", currentPixelFormat);
+  pixelFormat.store(currentPixelFormat);
 
-  if (pixelFormat < 0) logger->warning("pixel format set to " + ofToString(pixelFormat));
-  else if (pixelFormat != desiredPixelFormat) logger->notice("pixel format set to " + ofToString(pixelFormat));
+  if (pixelFormat != desiredPixelFormat) logger->notice("pixel format set to " + std::to_string(pixelFormat));
 
   setFrameRate(device, desiredFrameRate.load());
   logger->notice("Device Configured");
@@ -358,14 +357,14 @@ void Grabber::setFrameRate(std::shared_ptr<OosVimba::Device> device, double valu
 
   double min, max;
   device->getRange("AcquisitionFrameRateAbs", min, max);
-  framerate.store(ofClamp(value, min + 0.1, max - 0.1));
+  framerate.store(min(max(value, min + 0.1), max - 0.1));
   device->set("AcquisitionFrameRateAbs", framerate);
   double fr;
   device->get("AcquisitionFrameRateAbs", fr);
   framerate.store(fr);
 
   if (framerate != value) {
-    logger->notice("framerate set to " + ofToString(framerate));
+    logger->notice("framerate set to " + std::to_string(framerate));
   }
 
 }
@@ -410,13 +409,13 @@ void Grabber::streamFrameCallBack(const std::shared_ptr<OosVimba::Frame> frame) 
 
 // -- LIST ---------------------------------------------------------------------
 
-std::vector<ofVideoDevice> Grabber::listDevices() const {
-  std::vector<ofVideoDevice> deviceList = getDeviceList();
+Device_List_t Grabber::listDevices() const {
+  Device_List_t deviceList = getDeviceList();
   printDeviceList(deviceList);
   return deviceList;
 }
 
-std::vector<ofVideoDevice> Grabber::getDeviceList() const {
+Device_List_t Grabber::getDeviceList() const {
   std::lock_guard<std::mutex> lock(listMutex);
   return deviceList;
 }
@@ -426,8 +425,8 @@ void Grabber::updateDeviceList() {
   deviceList = createDeviceList();
 }
 
-std::vector<ofVideoDevice> Grabber::createDeviceList() {
-  std::vector<ofVideoDevice> videoDevices;
+Device_List_t Grabber::createDeviceList() {
+  Device_List_t videoDevices;
   if (!system->isAvailable()) {
     logger->error(
         "Failed to retrieve current camera list, system is unavailable");
@@ -444,50 +443,42 @@ std::vector<ofVideoDevice> Grabber::createDeviceList() {
 
   for (auto cam : cameras) {
     auto device = std::make_shared<OosVimba::Device>(cam);
-    ofVideoDevice ofDevice;
-    // convert to int to make compatable with ofVideoDevice
-    ofDevice.id = hexIdToIntId(device->getId());
-    ofDevice.deviceName = device->getModel();
-    ofDevice.hardwareName = "Allied Vision";
-    ofDevice.serialID = device->getSerial();
-    ofDevice.bAvailable =
-        (device->getAvailableAccessMode() == OosVimba::AccessModeMaster);
-    videoDevices.push_back(ofDevice);
+    videoDevices.push_back(device);
   }
 
   return videoDevices;
 }
 
-void Grabber::printDeviceList(std::vector<ofVideoDevice> dList) const {
+void Grabber::printDeviceList(Device_List_t dList) const {
   auto cameraString = createCameraString(dList);
   std::cout << cameraString << std::endl;
 }
 
-std::string  Grabber::createCameraString(std::vector<ofVideoDevice> dList) const {
+std::string  Grabber::createCameraString(Device_List_t dList) const {
   std::ostringstream out;
-  out << endl;
+  out << std::endl;
   out << "##########################################################################################";
-  out << endl;
-  out << "##           LISTING CAMERAS" << endl;
+  out << std::endl;
+  out << "##           LISTING CAMERAS" << std::endl;
   for (int i = 0; i < (int)dList.size(); i++) {
-    auto dev = dList[i];
-    out << "##  " << i << "  name: " << dev.deviceName.c_str()
-         << "  simple id: " << dev.id << "  id: " << intIdToHexId(dev.id)
-         << "  available: " << dev.bAvailable << endl;
+    auto& dev = dList.at(i);
+    out << "##  " << i << "  name: " << dev->getName().c_str()
+        << "  simple id: " << hexIdToIntId(dev->getId()) << "  id: " << dev->getId()
+         << "  available: " << dev->getAvailableAccessMode() << std::endl;
   }
   if (dList.size() == 0) {
-    out << "## no cameras found" << endl;
+    out << "## no cameras found" << std::endl;
   }
 
-  out << "##" << endl;
+  out << "##" << std::endl;
   out << "##########################################################################################";
-  out << endl;
+  out << std::endl;
   return out.str();;
 }
 
 // -- TOOLS --------------------------------------------------------------------
 
-int Grabber::hexIdToIntId(string value) {
+int Grabber::hexIdToIntId(std::string value) {
   int intId;
   std::stringstream ss;
   // Last 6 hex values: the unique ID as used in the predecessor of Vimba, PvAPI
@@ -511,7 +502,7 @@ std::string Grabber::intIdToHexId(int _intId) {
 std::string Grabber::getUserSetString(int userSet) {
   std::string us = "Default";
   if (userSet >= 1 && userSet <= 3) {
-    us = "UserSet" + ofToString(userSet);
+    us = "UserSet" + std::to_string(userSet);
   }
   return us;
 }

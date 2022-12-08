@@ -110,4 +110,6 @@ class Device {
 
   bool inspect();
 };
+
+typedef std::vector<std::shared_ptr<Device>> Device_List_t;
 }  // namespace OosVimba

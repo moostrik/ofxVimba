@@ -1,6 +1,8 @@
-#include "ofxVimbaGrabber.h"
+#include "ofxVimba.h"
 
-void ofxVimbaGrabber::updateFrame() {
+using namespace ofxVimba;
+
+void Grabber::updateFrame() {
   bNewFrame = false;
   bResolutionChanged = false;
   bPixelFormatChanged = false;
@@ -25,9 +27,9 @@ void ofxVimbaGrabber::updateFrame() {
   }
 }
 
-void ofxVimbaGrabber::streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) {
+void Grabber::streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) {
   auto newPixels = std::make_shared<ofPixels>();
-  auto format = ofxVimbaUtils::getOfPixelFormat(frame->getImageFormat());
+  auto format = getOfPixelFormat(frame->getImageFormat());
   if (format == OF_PIXELS_UNKNOWN) return;
 
   // The data from the frame should NOT be used outside the scope of this function.
@@ -39,12 +41,19 @@ void ofxVimbaGrabber::streamFrameCallBack(const std::shared_ptr<OosVim::Frame> f
 }
 
 
-void ofxVimbaGrabber::setDesiredPixelFormat(ofPixelFormat format) {
-  Grabber::setDesiredPixelFormat(ofxVimbaUtils::getVimbaPixelFormat(format));
+void Grabber::setDesiredPixelFormat(ofPixelFormat format) {
+  pixelFormat = format;
+  auto formatVMB = getVimbaPixelFormat(format);
+  if (formatVMB == "unknown") {
+    formatVMB = Grabber::getPixelFormat();
+    pixelFormat = getOfPixelFormat(formatVMB);
+    logger->warning("setDesiredPixelFormat(): unknown pixel format, default to " + formatVMB);
+  }
+  OosVim::Grabber::setDesiredPixelFormat(formatVMB);
 }
 
-
-std::vector<ofVideoDevice> ofxVimbaGrabber::listDevices() const {
+std::vector<ofVideoDevice> Grabber::listDevices() const {
+  printDeviceList(deviceList);
   std::vector<ofVideoDevice> deviceListOF;
   for (auto& device : deviceList) {
     ofVideoDevice deviceOF;

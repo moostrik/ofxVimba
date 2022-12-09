@@ -3,13 +3,11 @@
 using namespace OosVim;
 
 Grabber::Grabber() :
-  bInited(false),
   system(OosVim::System::getInstance()),
   discovery(nullptr),
   stream(nullptr),
   logger(std::make_shared<OosVim::Logger>("Grabber ")),
-//  pixels(std::make_shared<ofPixels>()),
-  pixelFormat(""),
+  pixelFormat("BGR8Packed"),
   width(0), height(0),
   bNewFrame(false),
   bResolutionChanged(false),
@@ -23,15 +21,15 @@ Grabber::Grabber() :
   desiredFrameRate(OosVim::MAX_FRAMERATE),
   framerate(0),
   deviceList(createDeviceList())
-{
-  if (!system->isAvailable()) return;
+{ }
+
+void Grabber::start() {
   actionsRunning = true;
   actionThread = std::make_shared<std::thread>(std::bind(&Grabber::actionRunner, this));
   startDiscovery();
-  bInited = true;
 }
 
-Grabber::~Grabber() {
+void Grabber::stop() {
   stopDiscovery();
 
   std::shared_ptr<std::thread> threadToKill;
@@ -350,23 +348,6 @@ bool Grabber::isEqualDevice(std::shared_ptr<OosVim::Device> dev1, std::shared_pt
   return dev1 && dev2 && SP_ISEQUAL(dev1->getHandle(), dev2->getHandle());
 }
 
-void Grabber::setFrameRate(std::shared_ptr<OosVim::Device> device, double value) {
-  if (!device || !device->isOpen() || !device->isMaster()) return;
-
-  double minValue, maxValue;
-  device->getRange("AcquisitionFrameRateAbs", minValue, maxValue);
-  framerate.store((std::min)((std::max)(value, minValue + 0.1), maxValue - 0.1));
-  device->set("AcquisitionFrameRateAbs", framerate);
-  double fr;
-  device->get("AcquisitionFrameRateAbs", fr);
-  framerate.store(fr);
-
-  if (framerate != value) {
-    logger->notice("Desired framerate not set, framerate set to " + std::to_string(framerate));
-  }
-
-}
-
 // -- STREAM -------------------------------------------------------------------
 
 bool Grabber::startStream(std::shared_ptr<OosVim::Device> device) {
@@ -404,6 +385,31 @@ void Grabber::streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) {
   receivedPixels.swap(newPixels);
 }
 */
+
+// -- FRAMERATE ----------------------------------------------------------------
+
+void Grabber::setFrameRate(std::shared_ptr<OosVim::Device> device, double value) {
+  if (!device || !device->isOpen() || !device->isMaster()) return;
+
+  std::string acquisitionMode;
+  device->get("AcquisitionMode", acquisitionMode);
+  if(acquisitionMode != "Continuous") {
+    logger->notice("Desired framerate not set, AcquisitionMode is not 'Continuous'");
+    return;
+  }
+
+  double minValue, maxValue;
+  device->getRange("AcquisitionFrameRateAbs", minValue, maxValue);
+  framerate.store((std::min)((std::max)(value, minValue + 0.1), maxValue - 0.1));
+  device->set("AcquisitionFrameRateAbs", framerate);
+  double fr;
+  device->get("AcquisitionFrameRateAbs", fr);
+  framerate.store(fr);
+
+  if (framerate != value) {
+    logger->notice("Desired framerate not set, framerate set to " + std::to_string(framerate));
+  }
+}
 
 // -- LIST ---------------------------------------------------------------------
 
@@ -460,9 +466,11 @@ std::string  Grabber::createCameraString(Device_List_t dList) const {
   out << "##           LISTING CAMERAS" << std::endl;
   for (int i = 0; i < (int)dList.size(); i++) {
     auto& dev = dList.at(i);
-    out << "##  " << i << "  name: " << dev->getName().c_str()
-        << "  simple id: " << hexIdToIntId(dev->getId()) << "  id: " << dev->getId()
-         << "  available: " << dev->getAvailableAccessMode() << std::endl;
+    out << "##  " << i
+        << "  name: " << dev->getModel().c_str()
+        << "  simple id: " << hexIdToIntId(dev->getId())
+        << "  id: " << dev->getId()
+        << "  available: " << dev->getAvailableAccessMode() << std::endl;
   }
   if (dList.size() == 0) {
     out << "## no cameras found" << std::endl;

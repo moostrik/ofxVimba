@@ -18,9 +18,11 @@ class Grabber {
 // -- SET --------------------------------------------------------------------
 public:
  Grabber();
- virtual ~Grabber();
+ virtual ~Grabber() { stop(); }
 
+ void start();
  virtual void updateFrame() = 0;
+ void stop();
 
 
  // -- SET --------------------------------------------------------------------
@@ -35,7 +37,7 @@ public:
   void loadUserSet() { setLoadUserSet(userSet.load()); }
 
   // -- GET --------------------------------------------------------------------
-  bool isInitialized()        const { return bInited; }
+  bool isInitialized()        const { return actionsRunning.load(); }
   bool isFrameNew()           const { return bNewFrame; }
   bool isConnected()          { return getActiveDevice() != nullptr; }
   bool isResolutionChanged()  { return bResolutionChanged; }
@@ -60,7 +62,6 @@ public:
  protected:
 
   // -- CORE -------------------------------------------------------------------
-  bool bInited;
   std::shared_ptr<OosVim::System>     system;
   std::shared_ptr<OosVim::Discovery>  discovery;
   std::shared_ptr<OosVim::Stream>     stream;

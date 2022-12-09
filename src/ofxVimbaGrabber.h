@@ -1,46 +1,22 @@
-#pragma once
-
-#include <atomic>
-#include <memory>
-#include <string>
-
-#include "ofMain.h"
-#include "OosVim/Grabber.h"
-#include "ofxVimbaUtils.h"
-
-class ofxVimbaGrabber : public OosVim::Grabber {
-public:
-  ofxVimbaGrabber() : pixels(std::make_shared<ofPixels>()), pixelFormat(OF_PIXELS_UNKNOWN) { }
-  virtual ~ofxVimbaGrabber() { }
-  void update() { updateFrame(); }
-
-  ofPixelFormat getPixelFormat() const  { return pixelFormat; }
-  const ofPixels& getPixels() const     { return *pixels; }
-  ofPixels& getPixels()                 { return *pixels; }
-
-  void setDesiredPixelFormat(ofPixelFormat format);
-  std::vector<ofVideoDevice> listDevices() const;
-
-private:
-  void updateFrame() override;
-  void streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) override;
-
-  std::shared_ptr<ofPixels> pixels;
-  std::shared_ptr<ofPixels> receivedPixels;
-  ofPixelFormat pixelFormat;
-};
-
 
 // Convenience class with inheritance of ofBaseVideoGrabber
-class ofxVimbaVideoGrabber : public ofBaseVideoGrabber {
+
+#pragma once
+
+#include "ofVideoBaseTypes.h"
+#include "ofxVimba.h"
+
+namespace ofxVimba {
+
+class ofVideoGrabber : public ofBaseVideoGrabber {
 // -- SET --------------------------------------------------------------------
 public:
-  ofxVimbaVideoGrabber()                              { grabber = std::make_unique<ofxVimbaGrabber>(); }
- virtual ~ofxVimbaVideoGrabber()                      { ofxVimbaVideoGrabber::close(); }
+  ofVideoGrabber()                                    { grabber = std::make_unique<ofxVimba::Grabber>(); }
+ virtual ~ofVideoGrabber()                            { }
 
- bool setup(int w = 0, int h = 0) override            { if (!grabber) grabber = std::make_unique<ofxVimbaGrabber>(); return grabber->isInitialized(); }
+ bool setup(int w = 0, int h = 0) override            { grabber->setup(); return grabber->isInitialized(); }
  void update() override                               { grabber->update(); }
- void close() override                                { grabber = nullptr; }
+ void close() override                                { grabber->close(); }
 
  // -- SET --------------------------------------------------------------------
   void setVerbose(bool bTalkToMe) override            { grabber->setVerbose(bTalkToMe); }
@@ -53,7 +29,7 @@ public:
   void setLoadUserSet(int setToLoad = 1)              { grabber->setLoadUserSet(setToLoad); }
 
   // -- GET --------------------------------------------------------------------
-  bool isInitialized() const override                 { return grabber && grabber->isInitialized(); }
+  bool isInitialized() const override                 { return grabber->isInitialized(); }
   bool isFrameNew() const override                    { return grabber->isFrameNew(); }
   bool isConnected()                                  { return grabber->isConnected(); }
   bool isResolutionChanged()                          { return grabber->isResolutionChanged(); }
@@ -76,5 +52,7 @@ public:
   vector<ofVideoDevice> listDevices() const override  { return grabber->listDevices(); }
 
 private:
-  unique_ptr<ofxVimbaGrabber> grabber;
+  unique_ptr<ofxVimba::Grabber> grabber;
 };
+
+}

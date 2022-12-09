@@ -7,7 +7,7 @@ void ofApp::setup() {
   toggleMultiCast = false;
   toggleMono = false;
   selectUserSet = 1;
-  vimbaGrabber = std::make_shared<ofxVimbaVideoGrabber>();
+  vimbaGrabber = std::make_shared<ofxVimba::ofVideoGrabber>();
 
   grabber.setGrabber(vimbaGrabber);
 

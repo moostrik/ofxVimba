@@ -14,7 +14,7 @@ class ofApp : public ofBaseApp {
 
  private:
   ofVideoGrabber grabber;
-  ofPtr<ofxVimbaVideoGrabber> vimbaGrabber;
+  ofPtr<ofxVimba::ofVideoGrabber> vimbaGrabber;
 
   vector<ofVideoDevice> devices;
   int   selectDevice;

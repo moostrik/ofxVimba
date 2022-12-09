@@ -1,10 +1,34 @@
 #pragma once
 
 #include "ofMain.h"
-#include "VimbaCPP/Include/VimbaCPP.h"
+#include "OosVim/Grabber.h"
 
-class ofxVimbaUtils {
+
+namespace ofxVimba {
+
+class Grabber : public OosVim::Grabber {
 public:
+  Grabber() : pixels(std::make_shared<ofPixels>()), pixelFormat(OF_PIXELS_UNKNOWN) { }
+  virtual ~Grabber() { }
+  void setup()  { OosVim::Grabber::start(); }
+  void update() { updateFrame(); }
+  void close()  { OosVim::Grabber::stop(); }
+
+  ofPixelFormat getPixelFormat() const  { return pixelFormat; }
+  const ofPixels& getPixels() const     { return *pixels; }
+  ofPixels& getPixels()                 { return *pixels; }
+
+  void setDesiredPixelFormat(ofPixelFormat format);
+  std::vector<ofVideoDevice> listDevices() const;
+
+private:
+  void updateFrame() override;
+  void streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) override;
+
+  std::shared_ptr<ofPixels> pixels;
+  std::shared_ptr<ofPixels> receivedPixels;
+  ofPixelFormat pixelFormat;
+};
 
 static inline string getVimbaPixelFormat(ofPixelFormat format) {
   switch (format) {
@@ -14,11 +38,8 @@ static inline string getVimbaPixelFormat(ofPixelFormat format) {
       return "RGB8Packed";
     case OF_PIXELS_BGR:
       return "BGR8Packed";
-    case OF_PIXELS_YUY2:
-      return "YUV422Packed";
     default:
-    ofLogWarning("ofxVimba::toVimbaPixelFormat") << "pixel format  "<< format << " not supported";
-      return "";
+      return "unknown";
   }
 }
 
@@ -30,10 +51,6 @@ static inline ofPixelFormat getOfPixelFormat(VmbPixelFormatType format) {
       return OF_PIXELS_RGB;
     case VmbPixelFormatBgr8:
       return OF_PIXELS_BGR;
-    case VmbPixelFormatRgba8:
-      return OF_PIXELS_RGBA;
-    case VmbPixelFormatBgra8:
-      return OF_PIXELS_BGRA;
     default:
       return OF_PIXELS_UNKNOWN;
   }
@@ -46,12 +63,8 @@ static inline ofPixelFormat getOfPixelFormat(string format) {
     return OF_PIXELS_RGB;
   } else if (format == "BGR8Packed") {
     return OF_PIXELS_BGR;
-  } else if (format == "YUV422Packed") {
-    return OF_PIXELS_YUY2;
   }
-  ofLogWarning("ofxVimba::toOfPixelFormat") << "pixel format  "<< format << " not supported";
   return OF_PIXELS_UNKNOWN;
 }
 
-};
-
+}

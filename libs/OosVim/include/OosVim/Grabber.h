@@ -28,7 +28,7 @@ public:
 
  void start();
  virtual void streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) = 0;
- virtual void updateFrame() = 0;
+ virtual bool updateFrame() = 0;
  void stop();
 
 

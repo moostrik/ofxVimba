@@ -4,8 +4,7 @@
 
 using namespace ofxVimba;
 
-void Grabber::updateFrame() {
-  bNewFrame = false;
+bool Grabber::updateFrame() {
   std::shared_ptr<ofPixels> newPixels = nullptr;
   {
     std::lock_guard<std::mutex> lock(frameMutex);
@@ -13,8 +12,9 @@ void Grabber::updateFrame() {
   }
   if (newPixels) {
     pixels.swap(newPixels);
-    bNewFrame = true;
+    return true;
   }
+  return false;
 }
 
 void Grabber::streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) {

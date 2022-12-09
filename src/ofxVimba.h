@@ -12,11 +12,11 @@ namespace ofxVimba {
 
 class Grabber : public OosVim::Grabber {
 public:
-  Grabber() : pixels(std::make_shared<ofPixels>()) { }
-  virtual ~Grabber() { }
+  Grabber() : pixels(std::make_shared<ofPixels>()), bNewFrame(false) { }
+  virtual ~Grabber() { OosVim::Grabber::stop(); }
 
   void setup() { OosVim::Grabber::start(); }
-  void update() { updateFrame(); }
+  void update() { bNewFrame = updateFrame(); }
   void close() { OosVim::Grabber::stop(); }
 
   bool isFrameNew() const { return bNewFrame; }
@@ -29,7 +29,7 @@ public:
   std::vector<ofVideoDevice> listDevices() const;
 
 private:
-  void updateFrame() override;
+  bool updateFrame() override;
   void streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) override;
 
   bool bNewFrame;

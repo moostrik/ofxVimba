@@ -1,3 +1,5 @@
+// Copyright (C) 2022 Matthias Oostrik
+
 #include "OosVim/System.h"
 
 using namespace OosVim;

@@ -21,6 +21,7 @@ public:
  virtual ~Grabber() { stop(); }
 
  void start();
+ virtual void streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) = 0;
  virtual void updateFrame() = 0;
  void stop();
 
@@ -37,25 +38,16 @@ public:
   void loadUserSet() { setLoadUserSet(userSet.load()); }
 
   // -- GET --------------------------------------------------------------------
-  bool isInitialized()        const { return actionsRunning.load(); }
-  bool isFrameNew()           const { return bNewFrame; }
+  bool isInitialized()        { return actionsRunning.load(); }
   bool isConnected()          { return getActiveDevice() != nullptr; }
-  bool isResolutionChanged()  { return bResolutionChanged; }
-  bool isPixelFormatChanged() { return bPixelFormatChanged; }
-  bool isPixelSizeChanged()   { return bResolutionChanged || bPixelFormatChanged; }
 
   bool isMultiCast()          { return bMulticast.load(); }
   bool isReadOnly()           { return bReadOnly.load(); }
   int  getUserSet()           { return userSet.load(); }
 
-  float getWidth()            const { return width; }
-  float getHeight()           const { return height; }
-  float getFrameRate()        const { return framerate.load(); }
-  std::string getDeviceId()        { std::lock_guard<std::mutex> lock(deviceMutex); return deviceID; };
-
-  std::string getPixelFormat()  const { return pixelFormat; }
-//  const ofPixels& getPixels()     const { return *pixels; }
-//  ofPixels &getPixels()           { return *pixels; }
+  float getFrameRate()        { return framerate.load(); }
+  std::string getDeviceId()           { std::lock_guard<std::mutex> lock(deviceMutex); return deviceID; };
+  std::string getDesiredPixelFormat() { std::lock_guard<std::mutex> lock(deviceMutex); return desiredPixelFormat; };
 
   Device_List_t listDevices() const;
 
@@ -66,15 +58,6 @@ public:
   std::shared_ptr<OosVim::Discovery>  discovery;
   std::shared_ptr<OosVim::Stream>     stream;
   std::shared_ptr<OosVim::Logger>     logger;
-
-  // -- FRAME ------------------------------------------------------------------
-//  std::shared_ptr<ofPixels> pixels;
-  std::string pixelFormat;
-  int width;
-  int height;
-  bool bNewFrame;
-  bool bResolutionChanged;
-  bool bPixelFormatChanged;
 
   // -- ACTION -----------------------------------------------------------------
   enum class ActionType { Connect, Disconnect, Configure };
@@ -107,7 +90,6 @@ public:
   std::atomic<bool> bMulticast;
   std::atomic<int>  userSet;
   std::string desiredPixelFormat;
-  std::string getDesiredPixelFormat() { std::lock_guard<std::mutex> lock(deviceMutex); return desiredPixelFormat; };
   std::mutex deviceMutex;
   std::shared_ptr<OosVim::Device> activeDevice;
   bool filterDevice(std::shared_ptr<OosVim::Device>     device, std::string id);
@@ -121,9 +103,6 @@ public:
   // -- STREAM -----------------------------------------------------------------
   bool startStream(std::shared_ptr<OosVim::Device> device);
   void stopStream();
-  std::mutex frameMutex;
-  virtual void streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) = 0;;
-//  std::shared_ptr<ofPixels> receivedPixels;
 
   // -- FRAMERATE --------------------------------------------------------------
   std::atomic<float> desiredFrameRate;

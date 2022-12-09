@@ -1,33 +1,41 @@
+// Copyright (C) 2022 Matthias Oostrik
+//
+// OpenFrameworks implementation of the OosVim Grabber
+// Note that only 3 pixelformats are supported, others can be added
+
 #pragma once
 
 #include "ofMain.h"
 #include "OosVim/Grabber.h"
 
-
 namespace ofxVimba {
 
 class Grabber : public OosVim::Grabber {
 public:
-  Grabber() : pixels(std::make_shared<ofPixels>()), pixelFormat(OF_PIXELS_UNKNOWN) { }
+  Grabber() : pixels(std::make_shared<ofPixels>()) { }
   virtual ~Grabber() { }
-  void setup()  { OosVim::Grabber::start(); }
-  void update() { updateFrame(); }
-  void close()  { OosVim::Grabber::stop(); }
 
-  ofPixelFormat getPixelFormat() const  { return pixelFormat; }
-  const ofPixels& getPixels() const     { return *pixels; }
-  ofPixels& getPixels()                 { return *pixels; }
+  void setup() { OosVim::Grabber::start(); }
+  void update() { updateFrame(); }
+  void close() { OosVim::Grabber::stop(); }
+
+  bool isFrameNew() const { return bNewFrame; }
+
+  const ofPixels& getPixels() const { return *pixels; }
+  ofPixels& getPixels() { return *pixels; }
 
   void setDesiredPixelFormat(ofPixelFormat format);
+  ofPixelFormat getDesiredPixelFormat();
   std::vector<ofVideoDevice> listDevices() const;
 
 private:
   void updateFrame() override;
   void streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) override;
 
+  bool bNewFrame;
+  std::mutex frameMutex;
   std::shared_ptr<ofPixels> pixels;
   std::shared_ptr<ofPixels> receivedPixels;
-  ofPixelFormat pixelFormat;
 };
 
 static inline string getVimbaPixelFormat(ofPixelFormat format) {

@@ -461,23 +461,32 @@ void Grabber::printDeviceList(Device_List_t dList) const {
 std::string  Grabber::createCameraString(Device_List_t dList) const {
   std::ostringstream out;
   out << std::endl;
-  out << "##########################################################################################";
+  out << "#######################################################################################################";
   out << std::endl;
-  out << "##           LISTING CAMERAS" << std::endl;
+  out << "##     LISTING CAMERAS                                                                               ##";
+  out << std::endl;
   for (int i = 0; i < (int)dList.size(); i++) {
     auto& dev = dList.at(i);
+    auto accesMode =  dev->getAvailableAccessMode();
+    std::string model = dev->getModel();
+    while (model.length() < 30 ) model += " ";
+    std::string id = dev->getId();
+    int simpleId = hexIdToIntId(id);
+    std::string accesString = (accesMode == AccessModeMaster)? "master     " : (accesMode == AccessModeRead)? "read only  " : "unavailable";
+
     out << "##  " << i
-        << "  name: " << dev->getModel().c_str()
-        << "  simple id: " << hexIdToIntId(dev->getId())
-        << "  id: " << dev->getId()
-        << "  available: " << dev->getAvailableAccessMode() << std::endl;
+        << "  " << model.c_str()
+        << "  id: " << id.c_str()
+        << "  simple id: " << simpleId
+        << "  acces: " << accesString.c_str()
+        << "  ## \n";
   }
   if (dList.size() == 0) {
     out << "## no cameras found" << std::endl;
   }
-
-  out << "##" << std::endl;
-  out << "##########################################################################################";
+  out << "##                                                                                                   ##";
+  out << std::endl;
+  out << "#######################################################################################################";
   out << std::endl;
   return out.str();;
 }

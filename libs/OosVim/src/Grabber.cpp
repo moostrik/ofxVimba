@@ -86,7 +86,7 @@ void Grabber::setLoadUserSet(int setToLoad) {
   if (isInitialized() && activeDevice) addAction(ActionType::Configure, activeDevice);
 }
 
-void Grabber::setDesiredFrameRate(int framerate) {
+void Grabber::setDesiredFrameRate(double framerate) {
   if (framerate == desiredFrameRate) return;
   desiredFrameRate.store(framerate);
   if (isInitialized() && isConnected()) setFrameRate(activeDevice, desiredFrameRate.load());

@@ -34,7 +34,7 @@ public:
 
  // -- SET --------------------------------------------------------------------
   void setVerbose(bool bTalkToMe);
-  void setDesiredFrameRate(int framerate);
+  void setDesiredFrameRate(double framerate);
   bool setDesiredPixelFormat(std::string format);
   void setDeviceID(int simpleID) { setDeviceID(intIdToHexId(simpleID)); }
   void setDeviceID(std::string ID);
@@ -51,7 +51,7 @@ public:
   bool isReadOnly()           { return bReadOnly.load(); }
   int  getUserSet()           { return userSet.load(); }
 
-  float getFrameRate()        { return framerate.load(); }
+  double getFrameRate()       { return framerate.load(); }
   std::string getDeviceId()           { std::lock_guard<std::mutex> lock(deviceMutex); return deviceID; };
   std::string getDesiredPixelFormat() { std::lock_guard<std::mutex> lock(deviceMutex); return desiredPixelFormat; };
 
@@ -133,8 +133,8 @@ public:
   void stopStream();
 
   // -- FRAMERATE --------------------------------------------------------------
-  std::atomic<float> desiredFrameRate;
-  std::atomic<float> framerate;
+  std::atomic<double> desiredFrameRate;
+  std::atomic<double> framerate;
   void setFrameRate(std::shared_ptr<OosVim::Device> device, double value);
 
   // -- LIST -------------------------------------------------------------------

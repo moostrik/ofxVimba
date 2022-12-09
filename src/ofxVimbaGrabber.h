@@ -1,4 +1,5 @@
-
+// Copyright (C) 2022 Matthias Oostrik
+//
 // Convenience class with inheritance of ofBaseVideoGrabber
 // Note that the width, height and pixelformat are set based on the features of the camera,
 // These variables are set based on the received frames;

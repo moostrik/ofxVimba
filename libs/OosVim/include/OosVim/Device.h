@@ -1,3 +1,5 @@
+// Copyright (C) 2022 Matthias Oostrik
+
 #pragma once
 
 #include "VimbaCPP/Include/VimbaCPP.h"

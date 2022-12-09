@@ -12,7 +12,11 @@
 #include <string>
 #include <thread>
 
-#include "OosVimba.h"
+#include "Device.h"
+#include "Discovery.h"
+#include "Logger.h"
+#include "Stream.h"
+#include "System.h"
 
 namespace OosVim {
 

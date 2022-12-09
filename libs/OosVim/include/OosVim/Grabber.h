@@ -57,6 +57,28 @@ public:
 
   Device_List_t listDevices() const;
 
+  // -- FEATURES ---------------------------------------------------------------
+  template <typename ValueType>
+  bool getFeature(const std::string& name, ValueType& value) {
+    auto device = getActiveDevice();
+    if (!device) return false;
+    return device->get(name, value);
+  }
+
+  template <typename ValueType>
+  bool setFeature(const std::string& name, ValueType& value) {
+    auto device = getActiveDevice();
+    if (!device) return false;
+    return device->set(name, value);
+  }
+
+  template <typename ValueType>
+  bool getFeatureRange(const std::string& name, ValueType& minValue, ValueType& maxValue) {
+    auto device = getActiveDevice();
+    if (!device) return false;
+    return device->getRange(name, minValue, maxValue);
+  }
+
  protected:
 
   // -- CORE -------------------------------------------------------------------

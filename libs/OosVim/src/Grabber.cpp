@@ -346,17 +346,30 @@ void Grabber::stopStream() {
 void Grabber::setFrameRate(std::shared_ptr<OosVim::Device> device, double value) {
   if (!device || !device->isOpen() || !device->isMaster()) return;
 
+  double minFrameRate, maxFrameRate;
+  device->getRange("AcquisitionFrameRateAbs", minFrameRate, maxFrameRate);
+
   std::string acquisitionMode;
   device->get("AcquisitionMode", acquisitionMode);
   if(acquisitionMode != "Continuous") {
-    logger->notice("Desired framerate not set, AcquisitionMode is not 'Continuous'");
+    framerate.store(0);
+    logger->notice("Desired framerate has no effect, AcquisitionMode is not 'Continuous', framerate likely to be 0");
     return;
   }
 
-  double minValue, maxValue;
-  device->getRange("AcquisitionFrameRateAbs", minValue, maxValue);
-  framerate.store((std::min)((std::max)(value, minValue + 0.1), maxValue - 0.1));
-  device->set("AcquisitionFrameRateAbs", framerate);
+  std::string TriggerSource;
+  device->get("TriggerSource", TriggerSource);
+  if(acquisitionMode != "FixedRate") {
+    framerate.store(maxFrameRate);
+    logger->notice("Desired framerate has no effect, TriggerSource is not 'FixedRate',  framerate is " + std::to_string(framerate));
+    logger->notice("Framerate depends on exposure and is currently, " + std::to_string(framerate));
+    return;
+  }
+
+  minFrameRate += 0.1;
+  maxFrameRate -= 0.1;
+  framerate.store((std::min)((std::max)(value, minFrameRate), maxFrameRate));
+  device->set("AcquisitionFrameRateAbs", framerate.load());
   double fr;
   device->get("AcquisitionFrameRateAbs", fr);
   framerate.store(fr);

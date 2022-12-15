@@ -28,6 +28,7 @@ void Grabber::start() {
 
 void Grabber::stop() {
   stopDiscovery();
+  stopStream();
 
   std::shared_ptr<std::thread> threadToKill;
   {

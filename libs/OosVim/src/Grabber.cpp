@@ -360,7 +360,7 @@ void Grabber::setFrameRate(std::shared_ptr<OosVim::Device> device, double value)
 
   std::string TriggerSource;
   device->get("TriggerSource", TriggerSource);
-  if(acquisitionMode != "FixedRate") {
+  if(TriggerSource != "FixedRate") {
     framerate.store(maxFrameRate);
     logger->notice("Desired framerate has no effect, TriggerSource is not 'FixedRate',  framerate is " + std::to_string(framerate));
     logger->notice("Framerate depends on exposure and is currently, " + std::to_string(framerate));

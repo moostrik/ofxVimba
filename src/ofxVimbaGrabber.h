@@ -54,6 +54,9 @@ public:
   void setReadOnly(bool value)                        { grabber->setReadOnly(value); }
   void setLoadUserSet(int setToLoad = 1)              { grabber->setLoadUserSet(setToLoad); }
 
+  void setExposure(int exposure)                      { grabber->setExposure(exposure); }
+  void setGain(int gain)                              { grabber->setGain(gain); }
+
   // -- GET --------------------------------------------------------------------
   bool isInitialized() const override                 { return grabber->isInitialized(); }
   bool isFrameNew() const override                    { return grabber->isFrameNew(); }

@@ -43,7 +43,6 @@ ofPixelFormat Grabber::getDesiredPixelFormat() {
   return getOfPixelFormat(OosVim::Grabber::getDesiredPixelFormat());
 }
 
-
 std::vector<ofVideoDevice> Grabber::listDevices() const {
   printDeviceList(deviceList);
   std::vector<ofVideoDevice> deviceListOF;
@@ -57,4 +56,42 @@ std::vector<ofVideoDevice> Grabber::listDevices() const {
     deviceListOF.push_back(deviceOF);
   }
   return deviceListOF;
+}
+
+void Grabber::setExposure(int value) {
+  auto range = getExposureRange();
+  float exposure = ofClamp(value, range.first, range.second);
+  setFeature("ExposureTimeAbs", exposure);
+}
+
+void Grabber::setGain(int value) {
+  auto range = getGainRange();
+  float gain = ofClamp(value, range.first, range.second);
+  setFeature("Gain", gain);
+}
+
+int Grabber::getExposure() {
+  float value;
+  getFeature("ExposureTimeAbs", value);
+  return value;
+}
+
+int Grabber::getGain() {
+  float value;
+  getFeature("Gain", value);
+  return value;
+}
+
+std::pair<int, int> Grabber::getExposureRange() {
+  float minValue, maxValue;
+  getFeatureRange("ExposureTimeAbs", minValue, maxValue);
+  std::pair<int, int> range(minValue, maxValue);
+  return range;
+}
+
+std::pair<int, int> Grabber::getGainRange() {
+  float minValue, maxValue;
+  getFeatureRange("Gain", minValue, maxValue);
+  std::pair<int, int> range(minValue, maxValue);
+  return range;
 }

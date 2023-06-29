@@ -28,6 +28,15 @@ public:
   ofPixelFormat getDesiredPixelFormat();
   std::vector<ofVideoDevice> listDevices() const;
 
+  void setExposure(int value);
+  void setGain(int value);
+
+  int getExposure();
+  int getGain();
+
+  std::pair<int, int> getExposureRange();
+  std::pair<int, int> getGainRange();
+
 private:
   bool updateFrame() override;
   void streamFrameCallBack(const std::shared_ptr<OosVim::Frame> frame) override;
